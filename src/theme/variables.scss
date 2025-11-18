@@ -1,2 +1,226 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+// Tigo Conecta - Color Theme
+// For information on how to create your own theme, please refer to:
+// https://ionicframework.com/docs/theming/
+
+// ============== COLORES PRINCIPALES DE TIGO ==============
+// Rojo/Naranja característico de Tigo
+
+:root {
+  // Colores primarios - Tigo Rojo/Naranja
+  --ion-color-primary: #e74c3c;
+  --ion-color-primary-rgb: 231, 76, 60;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #c0392b;
+  --ion-color-primary-tint: #ec7063;
+
+  // Colores secundarios
+  --ion-color-secondary: #f39c12;
+  --ion-color-secondary-rgb: 243, 156, 18;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #d68910;
+  --ion-color-secondary-tint: #f4a82e;
+
+  // Colores de estado
+  --ion-color-tertiary: #9b59b6;
+  --ion-color-tertiary-rgb: 155, 89, 182;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #884ea0;
+  --ion-color-tertiary-tint: #a569bd;
+
+  --ion-color-success: #27ae60;
+  --ion-color-success-rgb: 39, 174, 96;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #1e8449;
+  --ion-color-success-tint: #3dc970;
+
+  --ion-color-warning: #f39c12;
+  --ion-color-warning-rgb: 243, 156, 18;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d68910;
+  --ion-color-warning-tint: #f4a82e;
+
+  --ion-color-danger: #e74c3c;
+  --ion-color-danger-rgb: 231, 76, 60;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #c0392b;
+  --ion-color-danger-tint: #ec7063;
+
+  --ion-color-light: #f8f9fa;
+  --ion-color-light-rgb: 248, 249, 250;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #dde0e3;
+  --ion-color-light-tint: #f9fafb;
+
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9da3ac;
+
+  --ion-color-dark: #222428;
+  --ion-color-dark-rgb: 34, 36, 40;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #1e2023;
+  --ion-color-dark-tint: #383a3f;
+}
+
+// ============== ESTILOS GLOBALES ==============
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+// ============== SCROLLING ==============
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0392b;
+  border-radius: 4px;
+
+  &:hover {
+    background: #a93226;
+  }
+}
+
+// ============== IONIC OVERRIDES ==============
+
+ion-toolbar {
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+
+  ion-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+ion-card {
+  --background: white;
+  --border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+ion-button {
+  --border-radius: 8px;
+  --font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+
+  &[color='primary'] {
+    --background: #e74c3c;
+    --background-hover: #c0392b;
+    --background-activated: #a93226;
+  }
+
+  &[color='secondary'] {
+    --background: #f39c12;
+    --background-hover: #d68910;
+    --background-activated: #b8730f;
+  }
+
+  &[color='danger'] {
+    --background: #e74c3c;
+    --background-hover: #c0392b;
+    --background-activated: #a93226;
+  }
+
+  &[color='success'] {
+    --background: #27ae60;
+    --background-hover: #1e8449;
+    --background-activated: #186a3b;
+  }
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+  font-size: 14px;
+}
+
+ion-item {
+  --border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    --border-bottom: none;
+  }
+}
+
+ion-badge {
+  --padding: 6px 12px;
+  --border-radius: 20px;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+// ============== ANIMACIONES ==============
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+ion-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// ============== RESPONSIVE ==============
+
+@media (min-width: 768px) {
+  ion-card {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 600px;
+  }
+}

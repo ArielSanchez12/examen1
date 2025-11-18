@@ -1,0 +1,162 @@
+.plan-image-hero {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .plan-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+
+    ion-icon {
+      font-size: 120px;
+      opacity: 0.8;
+    }
+  }
+}
+
+.plan-info-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  .plan-titulo {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+
+  .plan-segmento {
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ion-color-success);
+    margin: 0 0 5px;
+  }
+
+  .plan-objetivo {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.precio-container {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(var(--ion-color-primary-rgb), 0.1), rgba(var(--ion-color-primary-rgb), 0.05));
+  border-radius: 12px;
+
+  .precio-grande {
+    display: block;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+  }
+
+  .precio-periodo {
+    font-size: 16px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.descripcion {
+  margin-bottom: 30px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid var(--ion-color-primary);
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ion-color-dark);
+  }
+}
+
+.caracteristicas-card {
+  margin-bottom: 30px;
+  border-radius: 12px;
+}
+
+ion-card-header {
+  padding: 16px;
+
+  ion-card-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.caracteristica-principal {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  ion-icon {
+    font-size: 24px;
+    color: var(--ion-color-primary);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .caracteristica-texto {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ion-color-medium);
+      line-height: 1.5;
+    }
+  }
+}
+
+.acciones-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 40px;
+
+  .btn-contratar {
+    --border-radius: 8px;
+    height: 48px;
+    font-weight: 600;
+  }
+
+  ion-button {
+    --border-radius: 8px;
+    height: 48px;
+    font-weight: 600;
+  }
+}
+
+.text-center {
+  text-align: center;
+}

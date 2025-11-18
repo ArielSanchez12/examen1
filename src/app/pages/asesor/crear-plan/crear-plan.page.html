@@ -1,0 +1,232 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditing ? 'Editar' : 'Crear' }} Plan</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="!loading" class="ion-padding">
+  <form [formGroup]="planForm" (ngSubmit)="onGuardar()">
+    <!-- Sección de Imagen -->
+    <ion-card class="imagen-card">
+      <ion-card-header>
+        <ion-card-title>Imagen Promocional</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Preview de imagen nueva -->
+        <div *ngIf="imagenPreview" class="imagen-preview">
+          <img [src]="imagenPreview" alt="Preview" />
+          <ion-button color="danger" fill="clear" size="small" (click)="eliminarImagenSeleccionada()">
+            <ion-icon slot="start" name="trash-outline"></ion-icon>
+            Eliminar
+          </ion-button>
+        </div>
+
+        <!-- Imagen actual -->
+        <div *ngIf="imagenActual && !imagenPreview" class="imagen-actual">
+          <p>Imagen actual:</p>
+          <img [src]="imagenActual" alt="Plan" />
+        </div>
+
+        <!-- Input de carga -->
+        <input
+          #fileInput
+          type="file"
+          accept="image/jpeg,image/png"
+          (change)="onImagenSeleccionada($event)"
+          style="display: none"
+        />
+
+        <ion-button
+          fill="outline"
+          expand="block"
+          (click)="fileInput.click()"
+          [disabled]="imagenPreview !== null"
+        >
+          <ion-icon slot="start" name="image-outline"></ion-icon>
+          Seleccionar Imagen (JPG/PNG, máx 5MB)
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Información Básica -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Información Básica</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-input
+            label="Nombre del Plan"
+            labelPlacement="floating"
+            formControlName="nombre"
+            placeholder="Ej: Plan Smart 5GB"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Precio (USD)"
+            labelPlacement="floating"
+            type="number"
+            step="0.01"
+            formControlName="precio"
+            placeholder="Ej: 15.99"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Segmento</ion-label>
+          <ion-select formControlName="segmento" interface="popover">
+            <ion-select-option value="Básico / Entrada">Básico / Entrada</ion-select-option>
+            <ion-select-option value="Medio / Estándar">Medio / Estándar</ion-select-option>
+            <ion-select-option value="Premium / Alto">Premium / Alto</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Público Objetivo"
+            labelPlacement="floating"
+            formControlName="publico_objetivo"
+            placeholder="Ej: Usuarios casuales, estudiantes"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-textarea
+            label="Descripción"
+            labelPlacement="floating"
+            formControlName="descripcion"
+            placeholder="Descripción del plan"
+            rows="3"
+          ></ion-textarea>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Características Técnicas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Características Técnicas</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-input
+            label="Datos Móviles"
+            labelPlacement="floating"
+            formControlName="datos"
+            placeholder="Ej: 5 GB mensuales (4G LTE)"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Minutos de Voz"
+            labelPlacement="floating"
+            formControlName="minutos"
+            placeholder="Ej: 100 minutos nacionales"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="SMS"
+            labelPlacement="floating"
+            formControlName="sms"
+            placeholder="Ej: Ilimitados a nivel nacional"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Velocidad 4G"
+            labelPlacement="floating"
+            formControlName="velocidad_4g"
+            placeholder="Ej: Hasta 50 Mbps"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Velocidad 5G (Opcional)"
+            labelPlacement="floating"
+            formControlName="velocidad_5g"
+            placeholder="Ej: Hasta 300 Mbps"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Redes Sociales"
+            labelPlacement="floating"
+            formControlName="redes_sociales"
+            placeholder="Ej: Facebook, Instagram, TikTok GRATIS"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="WhatsApp"
+            labelPlacement="floating"
+            formControlName="whatsapp"
+            placeholder="Ej: Incluido en los 5GB"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Llamadas Internacionales"
+            labelPlacement="floating"
+            formControlName="llamadas_internacionales"
+            placeholder="Ej: $0.15/min"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input
+            label="Roaming"
+            labelPlacement="floating"
+            formControlName="roaming"
+            placeholder="Ej: No incluido"
+          ></ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Estado -->
+    <ion-card>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>Plan Activo</ion-label>
+          <ion-toggle formControlName="activo" color="primary"></ion-toggle>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botones de acción -->
+    <div class="acciones">
+      <ion-button
+        expand="block"
+        color="primary"
+        type="submit"
+        [disabled]="planForm.invalid || enviando"
+      >
+        <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
+        <span *ngIf="!enviando">{{ isEditing ? 'Actualizar' : 'Crear' }} Plan</span>
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" type="button" (click)="goBack()">
+        Cancelar
+      </ion-button>
+    </div>
+  </form>
+</ion-content>
+
+<!-- Loading -->
+<div *ngIf="loading" class="text-center" style="padding: 80px 20px;">
+  <ion-spinner name="crescent"></ion-spinner>
+  <p>Cargando plan...</p>
+</div>

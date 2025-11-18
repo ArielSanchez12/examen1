@@ -1,0 +1,11 @@
+// Estilos globales de la app
+:host {
+  --ion-safe-area-top: 0px;
+  --ion-safe-area-bottom: 0px;
+  --ion-safe-area-left: 0px;
+  --ion-safe-area-right: 0px;
+}
+
+ion-app {
+  background: white;
+}

@@ -1,0 +1,101 @@
+ion-searchbar {
+  --background: #f4f4f4;
+  --border-radius: 25px;
+  margin-bottom: 15px;
+}
+
+.chats-list {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-card {
+  cursor: pointer;
+  border-radius: 12px;
+  margin: 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .chat-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 16px;
+  }
+
+  .chat-avatar {
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 50px;
+      color: var(--ion-color-primary);
+    }
+  }
+
+  .chat-info {
+    flex: 1;
+    min-width: 0;
+
+    .cliente-nombre {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--ion-color-dark);
+    }
+
+    .cliente-email {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin: 3px 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .plan-nombre {
+      font-size: 13px;
+      color: var(--ion-color-primary);
+      font-weight: 500;
+      margin: 5px 0 0;
+    }
+  }
+
+  .chevron {
+    font-size: 24px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
+}
+
+.sin-chats {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  small {
+    display: block;
+    font-size: 12px;
+    margin: 0;
+  }
+}
+
+.text-center {
+  text-align: center;
+}

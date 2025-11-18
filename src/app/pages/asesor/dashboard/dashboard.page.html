@@ -1,0 +1,107 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Dashboard - Mis Planes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="reloadPlanes()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" (click)="irAlPerfil()">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Bienvenida -->
+  <div class="bienvenida-section">
+    <h2>Bienvenido, {{ nombre }}</h2>
+    <p>Gestiona tus planes móviles aquí</p>
+  </div>
+
+  <!-- Botones de acción rápida -->
+  <div class="acciones-rapidas">
+    <ion-button expand="block" color="primary" (click)="irACrearPlan()">
+      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+      Crear Nuevo Plan
+    </ion-button>
+
+    <div class="acciones-row">
+      <ion-button fill="outline" expand="block" (click)="irAContrataciones()">
+        <ion-icon slot="start" name="document-text-outline"></ion-icon>
+        Contrataciones
+      </ion-button>
+      <ion-button fill="outline" expand="block" (click)="irAChats()">
+        <ion-icon slot="start" name="chatbubbles-outline"></ion-icon>
+        Chats
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center" style="padding: 60px 20px;">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando planes...</p>
+  </div>
+
+  <!-- Lista de planes -->
+  <div *ngIf="!loading && planes.length > 0" class="planes-list">
+    <h3 class="planes-titulo">Tus Planes ({{ planes.length }})</h3>
+
+    <ion-card *ngFor="let plan of planes" class="plan-card">
+      <div class="plan-header">
+        <div class="plan-info">
+          <h3 class="plan-nombre">{{ plan.nombre }}</h3>
+          <p class="plan-precio">${{ plan.precio }}/mes</p>
+        </div>
+        <ion-toggle
+          [checked]="plan.activo"
+          (ionChange)="togglePlanActivo(plan, $event)"
+          color="primary"
+        ></ion-toggle>
+      </div>
+
+      <!-- Imagen -->
+      <div class="plan-imagen" *ngIf="plan.imagen_url">
+        <img [src]="plan.imagen_url" alt="{{ plan.nombre }}" />
+      </div>
+
+      <ion-card-content>
+        <div class="plan-caracteristicas">
+          <div class="caracteristica">
+            <ion-icon name="cellular-outline"></ion-icon>
+            <span>{{ plan.datos }}</span>
+          </div>
+          <div class="caracteristica">
+            <ion-icon name="call-outline"></ion-icon>
+            <span>{{ plan.minutos }}</span>
+          </div>
+          <div class="caracteristica">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span>{{ plan.sms }}</span>
+          </div>
+        </div>
+
+        <div class="plan-acciones">
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="irAEditarPlan(plan.id!)"
+          >
+            <ion-icon slot="start" name="pencil-outline"></ion-icon>
+            Editar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Sin planes -->
+  <div *ngIf="!loading && planes.length === 0" class="sin-planes">
+    <ion-icon name="cube-outline"></ion-icon>
+    <p>No tienes planes aún</p>
+    <ion-button color="primary" (click)="irACrearPlan()">
+      Crear Primer Plan
+    </ion-button>
+  </div>
+</ion-content>

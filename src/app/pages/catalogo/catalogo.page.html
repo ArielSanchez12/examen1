@@ -1,0 +1,115 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Catálogo de Planes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="isAuthenticated" [routerLink]="['/perfil']" fill="clear">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="!isAuthenticated" (click)="irALogin()" fill="clear">
+        <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Header con bienvenida -->
+  <div class="header-section">
+    <h1>Tigo Conecta</h1>
+    <p>Elige el plan perfecto para ti</p>
+  </div>
+
+  <!-- Barra de búsqueda y filtros -->
+  <ion-searchbar
+    [(ngModel)]="searchText"
+    (ionChange)="onSearchChange()"
+    placeholder="Buscar plan..."
+    animated
+  ></ion-searchbar>
+
+  <!-- Filtro por segmento -->
+  <ion-item lines="none" class="filter-item">
+    <ion-label>Segmento:</ion-label>
+    <ion-select
+      [(ngModel)]="selectedSegmento"
+      (ionChange)="onSegmentoChange()"
+      interface="popover"
+      placeholder="Todos"
+    >
+      <ion-select-option value="">Todos</ion-select-option>
+      <ion-select-option *ngFor="let segmento of getSegmentos()" [value]="segmento">
+        {{ segmento }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center" style="padding: 40px;">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando planes...</p>
+  </div>
+
+  <!-- Lista de planes -->
+  <div *ngIf="!loading && planesFiltrados.length > 0" class="planes-container">
+    <ion-card
+      *ngFor="let plan of planesFiltrados"
+      class="plan-card"
+      (click)="irADetalle(plan.id!)"
+    >
+      <!-- Imagen del plan -->
+      <div class="plan-image" *ngIf="plan.imagen_url">
+        <img [src]="plan.imagen_url" alt="{{ plan.nombre }}" />
+      </div>
+      <div class="plan-image default" *ngIf="!plan.imagen_url">
+        <ion-icon name="phone-portrait-outline"></ion-icon>
+      </div>
+
+      <ion-card-header>
+        <ion-card-title class="plan-nombre">{{ plan.nombre }}</ion-card-title>
+        <p class="plan-segmento">{{ plan.segmento }}</p>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Precio destacado -->
+        <div class="precio-section">
+          <span class="precio">${{ plan.precio }}</span>
+          <span class="periodo">/mes</span>
+        </div>
+
+        <!-- Características principales -->
+        <div class="caracteristicas">
+          <div class="caracteristica-item">
+            <ion-icon name="cellular-outline"></ion-icon>
+            <span>{{ plan.datos }}</span>
+          </div>
+          <div class="caracteristica-item">
+            <ion-icon name="call-outline"></ion-icon>
+            <span>{{ plan.minutos }}</span>
+          </div>
+          <div class="caracteristica-item">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span>{{ plan.sms }}</span>
+          </div>
+        </div>
+
+        <!-- Botón Ver detalles -->
+        <ion-button expand="block" color="primary" class="btn-detalles">
+          Ver Detalles
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!loading && planesFiltrados.length === 0" class="sin-resultados">
+    <ion-icon name="search-outline"></ion-icon>
+    <p>No se encontraron planes con esos criterios</p>
+  </div>
+
+  <!-- Menu flotante para asesor -->
+  <ion-fab vertical="bottom" horizontal="end" *ngIf="isAsesor" slot="fixed">
+    <ion-fab-button color="primary" (click)="irADashboard()">
+      <ion-icon name="settings-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

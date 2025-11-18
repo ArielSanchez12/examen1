@@ -1,0 +1,154 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del Plan</ion-title>
+    <ion-buttons slot="end" *ngIf="isAsesor">
+      <ion-button fill="clear" (click)="editarPlan()">
+        <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="!loading" class="ion-padding">
+  <div *ngIf="plan">
+    <!-- Imagen del plan -->
+    <div class="plan-image-hero">
+      <img *ngIf="plan.imagen_url" [src]="plan.imagen_url" alt="{{ plan.nombre }}" />
+      <div *ngIf="!plan.imagen_url" class="plan-image-placeholder">
+        <ion-icon name="phone-portrait-outline"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Información principal -->
+    <div class="plan-info-header">
+      <h1 class="plan-titulo">{{ plan.nombre }}</h1>
+      <p class="plan-segmento">{{ plan.segmento }}</p>
+      <p class="plan-objetivo">{{ plan.publico_objetivo }}</p>
+    </div>
+
+    <!-- Precio grande -->
+    <div class="precio-container">
+      <span class="precio-grande">${{ plan.precio }}</span>
+      <span class="precio-periodo">/mes</span>
+    </div>
+
+    <!-- Descripción -->
+    <div class="descripcion" *ngIf="plan.descripcion">
+      <p>{{ plan.descripcion }}</p>
+    </div>
+
+    <!-- Características principales (destacadas) -->
+    <ion-card class="caracteristicas-card">
+      <ion-card-header>
+        <ion-card-title>Características Principales</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="caracteristica-principal">
+          <ion-icon name="cellular-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Datos Móviles</strong>
+            <p>{{ plan.datos }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal">
+          <ion-icon name="call-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Minutos de Voz</strong>
+            <p>{{ plan.minutos }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal">
+          <ion-icon name="mail-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>SMS</strong>
+            <p>{{ plan.sms }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal">
+          <ion-icon name="speed-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Velocidad 4G</strong>
+            <p>{{ plan.velocidad_4g }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal" *ngIf="plan.velocidad_5g">
+          <ion-icon name="flash-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Velocidad 5G</strong>
+            <p>{{ plan.velocidad_5g }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal" *ngIf="plan.redes_sociales">
+          <ion-icon name="share-social-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Redes Sociales</strong>
+            <p>{{ plan.redes_sociales }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal" *ngIf="plan.whatsapp">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>WhatsApp</strong>
+            <p>{{ plan.whatsapp }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal" *ngIf="plan.llamadas_internacionales">
+          <ion-icon name="globe-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Llamadas Internacionales</strong>
+            <p>{{ plan.llamadas_internacionales }}</p>
+          </div>
+        </div>
+
+        <div class="caracteristica-principal" *ngIf="plan.roaming">
+          <ion-icon name="earth-outline"></ion-icon>
+          <div class="caracteristica-texto">
+            <strong>Roaming</strong>
+            <p>{{ plan.roaming }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botones de acción -->
+    <div class="acciones-container">
+      <ion-button
+        *ngIf="!isAsesor"
+        expand="block"
+        color="primary"
+        size="large"
+        (click)="contratarPlan()"
+        [disabled]="contratando"
+        class="btn-contratar"
+      >
+        <ion-spinner *ngIf="contratando" name="crescent"></ion-spinner>
+        <span *ngIf="!contratando">Contratar Plan</span>
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        color="secondary"
+        fill="outline"
+        (click)="goBack()"
+      >
+        Volver al Catálogo
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center" style="padding: 80px 20px;">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando plan...</p>
+  </div>
+</ion-content>

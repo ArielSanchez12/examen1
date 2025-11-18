@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mis Chats</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="reloadContrataciones()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Búsqueda -->
+  <ion-searchbar
+    [(ngModel)]="searchText"
+    placeholder="Buscar cliente o plan..."
+    animated
+  ></ion-searchbar>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center" style="padding: 60px 20px;">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando chats...</p>
+  </div>
+
+  <!-- Lista de chats -->
+  <div *ngIf="!loading && getContratacionesFiltradas().length > 0" class="chats-list">
+    <ion-card
+      *ngFor="let contratacion of getContratacionesFiltradas()"
+      class="chat-card"
+      (click)="irAlChat(contratacion.id!)"
+    >
+      <div class="chat-content">
+        <!-- Avatar y nombre -->
+        <div class="chat-avatar">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </div>
+
+        <!-- Información -->
+        <div class="chat-info">
+          <h3 class="cliente-nombre">{{ contratacion.usuario?.nombre }}</h3>
+          <p class="cliente-email">{{ contratacion.usuario?.email }}</p>
+          <p class="plan-nombre">Plan: {{ contratacion.plan?.nombre }}</p>
+        </div>
+
+        <!-- Indicador -->
+        <ion-icon name="chevron-forward" class="chevron"></ion-icon>
+      </div>
+    </ion-card>
+  </div>
+
+  <!-- Sin chats -->
+  <div *ngIf="!loading && getContratacionesFiltradas().length === 0" class="sin-chats">
+    <ion-icon name="chatbubble-outline"></ion-icon>
+    <p>No tienes chats disponibles</p>
+    <small>Los chats aparecerán cuando haya contrataciones aprobadas</small>
+  </div>
+</ion-content>

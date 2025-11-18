@@ -1,0 +1,106 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Solicitudes de Contratación</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="reloadContrataciones()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <ion-segment [(ngModel)]="selectedFilter" (ionChange)="selectedFilter = $event.detail.value">
+      <ion-segment-button value="pendiente">
+        <ion-label>Pendiente</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="aprobada">
+        <ion-label>Aprobada</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="rechazada">
+        <ion-label>Rechazada</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="todas">
+        <ion-label>Todas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center" style="padding: 60px 20px;">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando contrataciones...</p>
+  </div>
+
+  <!-- Lista de contrataciones -->
+  <div *ngIf="!loading && getContratacionesFiltradas().length > 0" class="contrataciones-list">
+    <ion-card *ngFor="let contratacion of getContratacionesFiltradas()" class="contratacion-card">
+      <!-- Header con estado -->
+      <div class="contratacion-header">
+        <div>
+          <h3 class="usuario-nombre">{{ contratacion.usuario?.nombre }}</h3>
+          <p class="usuario-email">{{ contratacion.usuario?.email }}</p>
+        </div>
+        <ion-badge [color]="getEstadoColor(contratacion.estado)">
+          {{ contratacion.estado | uppercase }}
+        </ion-badge>
+      </div>
+
+      <ion-card-content>
+        <!-- Plan contratado -->
+        <div class="plan-info">
+          <ion-icon name="phone-portrait-outline"></ion-icon>
+          <div>
+            <strong>Plan:</strong>
+            <p>{{ contratacion.plan?.nombre }}</p>
+          </div>
+        </div>
+
+        <!-- Fecha de contratación -->
+        <div class="fecha-info">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <div>
+            <strong>Fecha de Contratación:</strong>
+            <p>{{ contratacion.fecha_contratacion | date: 'long' }}</p>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div class="notas" *ngIf="contratacion.notas">
+          <strong>Notas:</strong>
+          <p>{{ contratacion.notas }}</p>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="acciones" *ngIf="contratacion.estado === 'pendiente'">
+          <ion-button
+            color="success"
+            fill="outline"
+            size="small"
+            (click)="cambiarEstado(contratacion, 'aprobada')"
+          >
+            <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+            Aprobar
+          </ion-button>
+          <ion-button
+            color="danger"
+            fill="outline"
+            size="small"
+            (click)="cambiarEstado(contratacion, 'rechazada')"
+          >
+            <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+            Rechazar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Sin contrataciones -->
+  <div *ngIf="!loading && getContratacionesFiltradas().length === 0" class="sin-contrataciones">
+    <ion-icon name="document-outline"></ion-icon>
+    <p>No hay contrataciones en este estado</p>
+  </div>
+</ion-content>

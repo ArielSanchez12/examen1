@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="contratacion">
+      Chat - {{ contratacion.plan?.nombre }}
+    </ion-title>
+    <ion-title *ngIf="!contratacion">Chat</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content #contentChat scroll-events="true" class="chat-content">
+  <!-- Mensajes -->
+  <div class="mensajes-container">
+    <div *ngIf="mensajes.length === 0" class="sin-mensajes">
+      <ion-icon name="chatbubbles-outline"></ion-icon>
+      <p>Aún no hay mensajes. ¡Inicia la conversación!</p>
+    </div>
+
+    <div
+      *ngFor="let mensaje of mensajes"
+      class="mensaje"
+      [ngClass]="{ 'mensaje-propio': esDelUsuario(mensaje.remitente_id) }"
+    >
+      <div class="bubble" [ngClass]="{ 'bubble-propio': esDelUsuario(mensaje.remitente_id) }">
+        <p class="remitente" *ngIf="!esDelUsuario(mensaje.remitente_id)">
+          {{ mensaje.remitente?.nombre || 'Asesor' }}
+        </p>
+        <p class="texto-mensaje">{{ mensaje.mensaje }}</p>
+        <small class="hora">
+          {{ mensaje.created_at | date: 'short' }}
+        </small>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <div class="input-container">
+    <ion-item lines="none">
+      <ion-textarea
+        [(ngModel)]="nuevoMensaje"
+        placeholder="Escribe tu mensaje..."
+        rows="3"
+        maxlength="500"
+        (keypress)="handleKeyPress($event)"
+        [disabled]="enviando"
+      ></ion-textarea>
+      <ion-button
+        slot="end"
+        color="primary"
+        fill="clear"
+        (click)="enviarMensaje()"
+        [disabled]="!nuevoMensaje.trim() || enviando"
+      >
+        <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </div>
+</ion-footer>
