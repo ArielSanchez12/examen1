@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms'; // ← AGREGAR
 import { RouterModule, Router } from '@angular/router';
 import { ContratacionesService } from '../../../services/contrataciones';
 import { Contratacion } from '../../../models/contratacion.model';
@@ -10,7 +11,7 @@ import { Contratacion } from '../../../models/contratacion.model';
   templateUrl: './chats.page.html',
   styleUrls: ['./chats.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule]
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule] // ← AGREGAR FormsModule
 })
 export class ChatsPage implements OnInit {
   contratacionesConChat: Contratacion[] = [];
@@ -20,7 +21,7 @@ export class ChatsPage implements OnInit {
   constructor(
     private contratacionesService: ContratacionesService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadContrataciones();

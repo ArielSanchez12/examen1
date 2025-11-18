@@ -12,7 +12,7 @@
 <ion-content class="ion-padding">
   <!-- Filtros -->
   <div class="filtros-container">
-    <ion-segment [(ngModel)]="selectedFilter" (ionChange)="selectedFilter = $event.detail.value">
+    <ion-segment [value]="selectedFilter" (ionChange)="selectedFilter = ($event.detail.value as string) || 'pendiente'">
       <ion-segment-button value="pendiente">
         <ion-label>Pendiente</ion-label>
       </ion-segment-button>
@@ -75,21 +75,11 @@
 
         <!-- Botones de acción -->
         <div class="acciones" *ngIf="contratacion.estado === 'pendiente'">
-          <ion-button
-            color="success"
-            fill="outline"
-            size="small"
-            (click)="cambiarEstado(contratacion, 'aprobada')"
-          >
+          <ion-button color="success" fill="outline" size="small" (click)="cambiarEstado(contratacion, 'aprobada')">
             <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
             Aprobar
           </ion-button>
-          <ion-button
-            color="danger"
-            fill="outline"
-            size="small"
-            (click)="cambiarEstado(contratacion, 'rechazada')"
-          >
+          <ion-button color="danger" fill="outline" size="small" (click)="cambiarEstado(contratacion, 'rechazada')">
             <ion-icon slot="start" name="close-circle-outline"></ion-icon>
             Rechazar
           </ion-button>

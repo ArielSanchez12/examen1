@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Iniciar Sesión</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="irCatalogo()">
+        <ion-icon slot="icon-only" name="home-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding login-content">
+  <div class="header">
+    <h1>Tigo Conecta</h1>
+    <p>Accede para contratar planes y chatear con asesores</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="login()">
+    <ion-item>
+      <ion-input
+        type="email"
+        label="Email"
+        labelPlacement="floating"
+        formControlName="email"
+        inputmode="email"
+        placeholder="tu@correo.com"
+      ></ion-input>
+    </ion-item>
+    <div class="error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+      Ingresa un email válido
+    </div>
+
+    <ion-item>
+      <ion-input
+        [type]="mostrandoPass ? 'text' : 'password'"
+        label="Contraseña"
+        labelPlacement="floating"
+        formControlName="password"
+        placeholder="Mínimo 6 caracteres"
+      ></ion-input>
+      <ion-button slot="end" fill="clear" (click)="togglePass()">
+        <ion-icon [name]="mostrandoPass ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <div class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+      La contraseña debe tener al menos 6 caracteres
+    </div>
+
+    <ion-button expand="block" color="primary" type="submit" [disabled]="cargando">
+      <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+      <span *ngIf="!cargando">Entrar</span>
+    </ion-button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="registro-link">
+    <p>¿No tienes cuenta?</p>
+    <ion-button fill="outline" (click)="irRegistro()">Crear cuenta</ion-button>
+  </div>
+</ion-content>

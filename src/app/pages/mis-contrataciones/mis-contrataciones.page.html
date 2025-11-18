@@ -12,7 +12,7 @@
 <ion-content class="ion-padding">
   <!-- Filtros -->
   <div class="filtros-container">
-    <ion-segment [(ngModel)]="selectedFilter" (ionChange)="selectedFilter = $event.detail.value">
+    <ion-segment [value]="selectedFilter" (ionChange)="selectedFilter = ($event.detail.value as string) || 'todas'">
       <ion-segment-button value="todas">
         <ion-label>Todas</ion-label>
       </ion-segment-button>
@@ -38,7 +38,7 @@
   <div *ngIf="!loading && getContratacionesFiltradas().length > 0" class="contrataciones-list">
     <ion-card *ngFor="let contratacion of getContratacionesFiltradas()" class="contratacion-card">
       <!-- Estado -->
-      <div class="estado-badge" [color]="getEstadoColor(contratacion.estado)">
+      <div class="estado-badge">
         <ion-badge [color]="getEstadoColor(contratacion.estado)">
           {{ getEstadoTexto(contratacion.estado) }}
         </ion-badge>
@@ -75,19 +75,11 @@
 
         <!-- Botones de acción -->
         <div class="acciones">
-          <ion-button
-            fill="outline"
-            size="small"
-            (click)="irAlDetallePlan(contratacion.plan_id)"
-          >
+          <ion-button fill="outline" size="small" (click)="irAlDetallePlan(contratacion.plan_id)">
             <ion-icon slot="start" name="information-circle-outline"></ion-icon>
             Ver Plan
           </ion-button>
-          <ion-button
-            color="primary"
-            size="small"
-            (click)="irAlChat(contratacion.id!)"
-          >
+          <ion-button color="primary" size="small" (click)="irAlChat(contratacion.id!)">
             <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
             Chat
           </ion-button>

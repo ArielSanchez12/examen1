@@ -33,7 +33,7 @@ export class ChatPage implements OnInit, OnDestroy {
     private chatService: ChatService,
     private contratacionesService: ContratacionesService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.usuarioActualId = this.authService.currentUser?.id || '';
@@ -68,7 +68,7 @@ export class ChatPage implements OnInit, OnDestroy {
 
   private suscribirseAMensajes() {
     this.chatService.subscribeToMessages(this.contratacionId);
-    this.chatService.mensajes$.subscribe(mensajes => {
+    this.chatService.mensajes$.subscribe((mensajes: Mensaje[]) => { // ← AGREGAR tipo
       this.mensajes = mensajes;
       this.scrollAlFinal();
     });

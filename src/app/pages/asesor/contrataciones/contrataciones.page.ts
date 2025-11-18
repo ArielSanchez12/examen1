@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController } from '@ionic/angular';
+import { FormsModule } from '@angular/forms'; // ← AGREGAR
 import { RouterModule } from '@angular/router';
 import { ContratacionesService } from '../../../services/contrataciones';
 import { Contratacion } from '../../../models/contratacion.model';
@@ -10,7 +11,7 @@ import { Contratacion } from '../../../models/contratacion.model';
   templateUrl: './contrataciones.page.html',
   styleUrls: ['./contrataciones.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule]
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule] // ← AGREGAR FormsModule
 })
 export class ContratacionesPage implements OnInit {
   contrataciones: Contratacion[] = [];
@@ -20,7 +21,7 @@ export class ContratacionesPage implements OnInit {
   constructor(
     private contratacionesService: ContratacionesService,
     private alertController: AlertController
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadContrataciones();
@@ -48,7 +49,7 @@ export class ContratacionesPage implements OnInit {
     try {
       await this.contratacionesService.updateEstado(contratacion.id!, nuevoEstado as any);
       contratacion.estado = nuevoEstado as any;
-      
+
       const alert = await this.alertController.create({
         header: 'Éxito',
         message: `Contratación ${nuevoEstado}`,
