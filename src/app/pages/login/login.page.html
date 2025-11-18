@@ -2,7 +2,7 @@
   <ion-toolbar color="primary">
     <ion-title>Iniciar Sesión</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="irCatalogo()">
+      <ion-button fill="outline" (click)="irCatalogo()">
         <ion-icon slot="icon-only" name="home-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -17,27 +17,16 @@
 
   <form [formGroup]="form" (ngSubmit)="login()">
     <ion-item>
-      <ion-input
-        type="email"
-        label="Email"
-        labelPlacement="floating"
-        formControlName="email"
-        inputmode="email"
-        placeholder="tu@correo.com"
-      ></ion-input>
+      <ion-input type="email" label="Email" labelPlacement="floating" formControlName="email" inputmode="email"
+        placeholder="tu@correo.com"></ion-input>
     </ion-item>
     <div class="error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
       Ingresa un email válido
     </div>
 
     <ion-item>
-      <ion-input
-        [type]="mostrandoPass ? 'text' : 'password'"
-        label="Contraseña"
-        labelPlacement="floating"
-        formControlName="password"
-        placeholder="Mínimo 6 caracteres"
-      ></ion-input>
+      <ion-input [type]="mostrandoPass ? 'text' : 'password'" label="Contraseña" labelPlacement="floating"
+        formControlName="password" placeholder="Mínimo 6 caracteres"></ion-input>
       <ion-button slot="end" fill="clear" (click)="togglePass()">
         <ion-icon [name]="mostrandoPass ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
       </ion-button>

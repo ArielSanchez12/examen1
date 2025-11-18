@@ -2,7 +2,7 @@
   <ion-toolbar color="primary">
     <ion-title>Mis Chats</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="reloadContrataciones()">
+      <ion-button fill="outline" (click)="reloadContrataciones()">
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -11,11 +11,7 @@
 
 <ion-content class="ion-padding">
   <!-- Búsqueda -->
-  <ion-searchbar
-    [(ngModel)]="searchText"
-    placeholder="Buscar cliente o plan..."
-    animated
-  ></ion-searchbar>
+  <ion-searchbar [(ngModel)]="searchText" placeholder="Buscar cliente o plan..." animated></ion-searchbar>
 
   <!-- Loading -->
   <div *ngIf="loading" class="text-center" style="padding: 60px 20px;">
@@ -25,11 +21,8 @@
 
   <!-- Lista de chats -->
   <div *ngIf="!loading && getContratacionesFiltradas().length > 0" class="chats-list">
-    <ion-card
-      *ngFor="let contratacion of getContratacionesFiltradas()"
-      class="chat-card"
-      (click)="irAlChat(contratacion.id!)"
-    >
+    <ion-card *ngFor="let contratacion of getContratacionesFiltradas()" class="chat-card"
+      (click)="irAlChat(contratacion.id!)">
       <div class="chat-content">
         <!-- Avatar y nombre -->
         <div class="chat-avatar">

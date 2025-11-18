@@ -73,15 +73,16 @@ export class ChatService {
 
   async enviarMensaje(contratacionId: string, mensaje: string) {
     try {
-      const { error } = await this.supabase.client
+      const { data, error } = await this.supabase.client
         .from('mensajes_chat')
-        .insert([
-          {
-            contratacion_id: contratacionId,
-            remitente_id: this.auth.currentUser?.id,
-            mensaje: mensaje
-          }
-        ]);
+        .insert({
+          contratacion_id: contratacionId,
+          mensaje: mensaje,
+          // FIX: Usar el getter en lugar del método
+          remitente_id: this.auth.currentUser?.id,
+        })
+        .select('*, remitente:perfiles(*)')
+        .single();
 
       if (error) throw error;
     } catch (error) {

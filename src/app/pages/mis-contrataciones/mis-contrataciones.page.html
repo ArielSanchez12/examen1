@@ -2,7 +2,7 @@
   <ion-toolbar color="primary">
     <ion-title>Mis Contrataciones</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="reloadContrataciones()">
+      <ion-button fill="outline" (click)="reloadContrataciones()">
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -12,7 +12,7 @@
 <ion-content class="ion-padding">
   <!-- Filtros -->
   <div class="filtros-container">
-    <ion-segment [value]="selectedFilter" (ionChange)="selectedFilter = ($event.detail.value as string) || 'todas'">
+    <ion-segment [value]="selectedFilter" (ionChange)="onSegmentChange($event)">
       <ion-segment-button value="todas">
         <ion-label>Todas</ion-label>
       </ion-segment-button>

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms'; // <-- agregado
 import { PlanesService } from '../../services/planes';
 import { AuthService } from '../../services/auth';
 import { Plan } from '../../models/plan.model';
@@ -12,85 +12,122 @@ import { Plan } from '../../models/plan.model';
   templateUrl: './catalogo.page.html',
   styleUrls: ['./catalogo.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule]
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule] // <-- agregado
 })
 export class CatalogoPage implements OnInit {
   planes: Plan[] = [];
-  planesFiltrados: Plan[] = [];
+  planesBasico: Plan[] = [];
+  planesIntermedio: Plan[] = [];
+  planesPremium: Plan[] = [];
   loading = false;
-  searchText = '';
-  selectedSegmento = '';
   isAuthenticated = false;
   isAsesor = false;
+
+  // <-- añadidos para el template
+  searchText: string = '';
+  selectedSegment: string = 'todos';
+  selectedSegmento: string = 'todos';
 
   constructor(
     private planesService: PlanesService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadPlanes();
-    this.checkAuth();
-  }
-
-  private checkAuth() {
+    // getters (sin paréntesis)
     this.isAuthenticated = this.authService.isAuthenticated;
     this.isAsesor = this.authService.isAsesor;
+    this.selectedSegmento = this.selectedSegment; // sincronizar con el select
   }
 
   private async loadPlanes() {
     this.loading = true;
     try {
       this.planes = await this.planesService.getAllPlanes();
-      this.filtrar();
+      this.categorizarPlanes();
     } catch (error) {
       console.error('Error al cargar planes:', error);
+      this.planes = [];
     } finally {
       this.loading = false;
     }
   }
 
-  filtrar() {
-    let filtrados = this.planes;
-
-    if (this.searchText) {
-      const search = this.searchText.toLowerCase();
-      filtrados = filtrados.filter(p =>
-        p.nombre.toLowerCase().includes(search) ||
-        p.descripcion?.toLowerCase().includes(search)
-      );
-    }
-
-    if (this.selectedSegmento) {
-      filtrados = filtrados.filter(p => p.segmento === this.selectedSegmento);
-    }
-
-    this.planesFiltrados = filtrados;
+  private categorizarPlanes() {
+    const norm = (s?: string) => (s || '').toLowerCase();
+    this.planesBasico = this.planes.filter(p => {
+      const seg = norm(p.segmento);
+      return seg.includes('básico') || seg.includes('basico') || seg.includes('entrada');
+    });
+    this.planesIntermedio = this.planes.filter(p => {
+      const seg = norm(p.segmento);
+      return seg.includes('medio') || seg.includes('estándar') || seg.includes('estandar');
+    });
+    this.planesPremium = this.planes.filter(p => {
+      const seg = norm(p.segmento);
+      return seg.includes('premium') || seg.includes('alto');
+    });
   }
 
+  // Getter usado por el template (planesFiltrados)
+  get planesFiltrados(): Plan[] {
+    const base =
+      this.selectedSegment === 'basico' ? this.planesBasico :
+        this.selectedSegment === 'intermedio' ? this.planesIntermedio :
+          this.selectedSegment === 'premium' ? this.planesPremium :
+            this.planes;
+
+    const q = this.searchText.trim().toLowerCase();
+    if (!q) return base;
+
+    return base.filter(p => {
+      const nombre = (p.nombre || '').toLowerCase();
+      const desc = (p.descripcion || '').toLowerCase();
+      return nombre.includes(q) || desc.includes(q);
+    });
+  }
+
+  // Si el template llama este método, no falla (no hace falta lógica adicional)
   onSearchChange() {
-    this.filtrar();
+    // intencionalmente vacío; el binding bidireccional ya actualiza planesFiltrados
   }
 
+  onSegmentChange(event: any) {
+    this.selectedSegment = event?.detail?.value || 'todos';
+    this.selectedSegmento = this.selectedSegment; // mantener ambos en sync
+  }
+
+  // El template usa onSegmentoChange()
   onSegmentoChange() {
-    this.filtrar();
+    this.selectedSegment = this.selectedSegmento;
   }
 
-  irADetalle(id: string) {
-    this.router.navigate(['/detalle-plan', id]);
+  // Usados por el template
+  getSegmentos(): string[] {
+    return ['todos', 'basico', 'intermedio', 'premium'];
   }
 
-  irALogin() {
-    this.router.navigate(['/login']);
+  irAlPlan(planId: string) {
+    this.router.navigate(['/detalle-plan', planId]);
   }
 
+  // El template usa irADetalle()
+  irADetalle(planId: string) {
+    this.irAlPlan(planId);
+  }
+
+  // El template usa irADashboard()
   irADashboard() {
     this.router.navigate(['/asesor/dashboard']);
   }
 
-  getSegmentos() {
-    const segmentos = new Set(this.planes.map(p => p.segmento));
-    return Array.from(segmentos);
+  reloadPlanes() {
+    this.loadPlanes();
+  }
+
+  irALogin() {
+    this.router.navigate(['/login']);
   }
 }

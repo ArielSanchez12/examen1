@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/asesor/dashboard"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ isEditing ? 'Editar' : 'Crear' }} Plan</ion-title>
   </ion-toolbar>
@@ -31,20 +31,10 @@
         </div>
 
         <!-- Input de carga -->
-        <input
-          #fileInput
-          type="file"
-          accept="image/jpeg,image/png"
-          (change)="onImagenSeleccionada($event)"
-          style="display: none"
-        />
+        <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImagenSeleccionada($event)"
+          style="display: none" />
 
-        <ion-button
-          fill="outline"
-          expand="block"
-          (click)="fileInput.click()"
-          [disabled]="imagenPreview !== null"
-        >
+        <ion-button fill="outline" expand="block" (click)="fileInput.click()" [disabled]="imagenPreview !== null">
           <ion-icon slot="start" name="image-outline"></ion-icon>
           Seleccionar Imagen (JPG/PNG, máx 5MB)
         </ion-button>
@@ -58,23 +48,13 @@
       </ion-card-header>
       <ion-card-content>
         <ion-item>
-          <ion-input
-            label="Nombre del Plan"
-            labelPlacement="floating"
-            formControlName="nombre"
-            placeholder="Ej: Plan Smart 5GB"
-          ></ion-input>
+          <ion-input label="Nombre del Plan" labelPlacement="floating" formControlName="nombre"
+            placeholder="Ej: Plan Smart 5GB"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Precio (USD)"
-            labelPlacement="floating"
-            type="number"
-            step="0.01"
-            formControlName="precio"
-            placeholder="Ej: 15.99"
-          ></ion-input>
+          <ion-input label="Precio (USD)" labelPlacement="floating" type="number" step="0.01" formControlName="precio"
+            placeholder="Ej: 15.99"></ion-input>
         </ion-item>
 
         <ion-item>
@@ -87,22 +67,13 @@
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Público Objetivo"
-            labelPlacement="floating"
-            formControlName="publico_objetivo"
-            placeholder="Ej: Usuarios casuales, estudiantes"
-          ></ion-input>
+          <ion-input label="Público Objetivo" labelPlacement="floating" formControlName="publico_objetivo"
+            placeholder="Ej: Usuarios casuales, estudiantes"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-textarea
-            label="Descripción"
-            labelPlacement="floating"
-            formControlName="descripcion"
-            placeholder="Descripción del plan"
-            rows="3"
-          ></ion-textarea>
+          <ion-textarea label="Descripción" labelPlacement="floating" formControlName="descripcion"
+            placeholder="Descripción del plan" rows="3"></ion-textarea>
         </ion-item>
       </ion-card-content>
     </ion-card>
@@ -114,84 +85,48 @@
       </ion-card-header>
       <ion-card-content>
         <ion-item>
-          <ion-input
-            label="Datos Móviles"
-            labelPlacement="floating"
-            formControlName="datos"
-            placeholder="Ej: 5 GB mensuales (4G LTE)"
-          ></ion-input>
+          <ion-input label="Datos Móviles" labelPlacement="floating" formControlName="datos"
+            placeholder="Ej: 5 GB mensuales (4G LTE)"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Minutos de Voz"
-            labelPlacement="floating"
-            formControlName="minutos"
-            placeholder="Ej: 100 minutos nacionales"
-          ></ion-input>
+          <ion-input label="Minutos de Voz" labelPlacement="floating" formControlName="minutos"
+            placeholder="Ej: 100 minutos nacionales"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="SMS"
-            labelPlacement="floating"
-            formControlName="sms"
-            placeholder="Ej: Ilimitados a nivel nacional"
-          ></ion-input>
+          <ion-input label="SMS" labelPlacement="floating" formControlName="sms"
+            placeholder="Ej: Ilimitados a nivel nacional"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Velocidad 4G"
-            labelPlacement="floating"
-            formControlName="velocidad_4g"
-            placeholder="Ej: Hasta 50 Mbps"
-          ></ion-input>
+          <ion-input label="Velocidad 4G" labelPlacement="floating" formControlName="velocidad_4g"
+            placeholder="Ej: Hasta 50 Mbps"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Velocidad 5G (Opcional)"
-            labelPlacement="floating"
-            formControlName="velocidad_5g"
-            placeholder="Ej: Hasta 300 Mbps"
-          ></ion-input>
+          <ion-input label="Velocidad 5G (Opcional)" labelPlacement="floating" formControlName="velocidad_5g"
+            placeholder="Ej: Hasta 300 Mbps"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Redes Sociales"
-            labelPlacement="floating"
-            formControlName="redes_sociales"
-            placeholder="Ej: Facebook, Instagram, TikTok GRATIS"
-          ></ion-input>
+          <ion-input label="Redes Sociales" labelPlacement="floating" formControlName="redes_sociales"
+            placeholder="Ej: Facebook, Instagram, TikTok GRATIS"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="WhatsApp"
-            labelPlacement="floating"
-            formControlName="whatsapp"
-            placeholder="Ej: Incluido en los 5GB"
-          ></ion-input>
+          <ion-input label="WhatsApp" labelPlacement="floating" formControlName="whatsapp"
+            placeholder="Ej: Incluido en los 5GB"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Llamadas Internacionales"
-            labelPlacement="floating"
-            formControlName="llamadas_internacionales"
-            placeholder="Ej: $0.15/min"
-          ></ion-input>
+          <ion-input label="Llamadas Internacionales" labelPlacement="floating"
+            formControlName="llamadas_internacionales" placeholder="Ej: $0.15/min"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input
-            label="Roaming"
-            labelPlacement="floating"
-            formControlName="roaming"
-            placeholder="Ej: No incluido"
-          ></ion-input>
+          <ion-input label="Roaming" labelPlacement="floating" formControlName="roaming"
+            placeholder="Ej: No incluido"></ion-input>
         </ion-item>
       </ion-card-content>
     </ion-card>
@@ -208,12 +143,7 @@
 
     <!-- Botones de acción -->
     <div class="acciones">
-      <ion-button
-        expand="block"
-        color="primary"
-        type="submit"
-        [disabled]="planForm.invalid || enviando"
-      >
+      <ion-button expand="block" color="primary" type="submit" [disabled]="planForm.invalid || enviando">
         <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
         <span *ngIf="!enviando">{{ isEditing ? 'Actualizar' : 'Crear' }} Plan</span>
       </ion-button>

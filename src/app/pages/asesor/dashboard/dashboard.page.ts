@@ -22,7 +22,7 @@ export class DashboardPage implements OnInit {
     private planesService: PlanesService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadPlanes();

@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PlanesService } from '../../services/planes';
 import { ContratacionesService } from '../../services/contrataciones';
 import { AuthService } from '../../services/auth';
+import { SupabaseService } from '../../services/supabase';
 import { Plan } from '../../models/plan.model';
 
 @Component({
@@ -28,14 +29,17 @@ export class DetallePlanPage implements OnInit {
     private planesService: PlanesService,
     private contratacionesService: ContratacionesService,
     private authService: AuthService,
-    private alertController: AlertController
-  ) {}
+    private supabase: SupabaseService,
+    private alertController: AlertController,
+    private loadingController: LoadingController
+  ) { }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.planId = params['id'];
       this.loadPlan();
     });
+    // FIX: Sin paréntesis - son getters, no métodos
     this.isAuthenticated = this.authService.isAuthenticated;
     this.isAsesor = this.authService.isAsesor;
   }
@@ -52,39 +56,72 @@ export class DetallePlanPage implements OnInit {
   }
 
   async contratarPlan() {
-    if (!this.isAuthenticated) {
-      const alert = await this.alertController.create({
-        header: 'Contratar Plan',
-        message: 'Debes iniciar sesión para contratar un plan',
-        buttons: [
-          { text: 'Cancelar', role: 'cancel' },
-          { text: 'Iniciar Sesión', handler: () => this.router.navigate(['/login']) }
-        ]
-      });
-      await alert.present();
-      return;
-    }
-
-    this.contratando = true;
     try {
-      await this.contratacionesService.crearContratacion(this.planId);
+      // Verificar autenticación usando el método async de SupabaseService
+      const isAuth = await this.supabase.isAuthenticated();
+
+      if (!isAuth) {
+        const alert = await this.alertController.create({
+          header: 'No autenticado',
+          message: 'Debes iniciar sesión para contratar un plan',
+          buttons: [
+            {
+              text: 'Cancelar',
+              role: 'cancel'
+            },
+            {
+              text: 'Ir a Login',
+              handler: () => {
+                this.router.navigate(['/login'], {
+                  queryParams: { returnUrl: `/detalle-plan/${this.planId}` }
+                });
+              }
+            }
+          ]
+        });
+        await alert.present();
+        return;
+      }
+
+      const loading = await this.loadingController.create({
+        message: 'Procesando contratación...'
+      });
+      await loading.present();
+
+      const result = await this.contratacionesService.crearContratacion(this.planId);
+
+      await loading.dismiss();
+
+      if (result.success) {
+        const alert = await this.alertController.create({
+          header: '✅ Contratación exitosa',
+          message: 'Tu solicitud ha sido enviada. Un asesor la revisará pronto.',
+          buttons: [
+            {
+              text: 'Ver mis contrataciones',
+              handler: () => {
+                this.router.navigate(['/mis-contrataciones']);
+              }
+            }
+          ]
+        });
+        await alert.present();
+      } else {
+        const alert = await this.alertController.create({
+          header: '❌ Error',
+          message: result.error || 'No se pudo contratar el plan. Intenta más tarde.',
+          buttons: ['OK']
+        });
+        await alert.present();
+      }
+    } catch (error: any) {
+      console.error('Error en contratación:', error);
       const alert = await this.alertController.create({
-        header: 'Éxito',
-        message: 'Plan contratado correctamente. Revisa tus contrataciones.',
-        buttons: [
-          { text: 'Aceptar', handler: () => this.router.navigate(['/mis-contrataciones']) }
-        ]
+        header: '❌ Error',
+        message: 'Ocurrió un error inesperado',
+        buttons: ['OK']
       });
       await alert.present();
-    } catch (error) {
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: 'No se pudo contratar el plan. Intenta más tarde.',
-        buttons: ['Aceptar']
-      });
-      await alert.present();
-    } finally {
-      this.contratando = false;
     }
   }
 

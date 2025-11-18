@@ -23,13 +23,10 @@ export class PerfilPage implements OnInit {
     private supabaseService: SupabaseService,
     private alertController: AlertController,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
-    this.loadPerfil();
-  }
-
-  private loadPerfil() {
+    // FIX: Usar el getter en lugar del método
     const profile = this.authService.currentProfile;
     if (profile) {
       this.nombre = profile.nombre || '';

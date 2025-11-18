@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/catalogo"></ion-back-button>
     </ion-buttons>
     <ion-title>Detalle del Plan</ion-title>
     <ion-buttons slot="end" *ngIf="isAsesor">
-      <ion-button fill="clear" (click)="editarPlan()">
+      <ion-button fill="outline" (click)="editarPlan()">
         <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -122,25 +122,13 @@
 
     <!-- Botones de acción -->
     <div class="acciones-container">
-      <ion-button
-        *ngIf="!isAsesor"
-        expand="block"
-        color="primary"
-        size="large"
-        (click)="contratarPlan()"
-        [disabled]="contratando"
-        class="btn-contratar"
-      >
+      <ion-button *ngIf="!isAsesor" expand="block" color="primary" size="large" (click)="contratarPlan()"
+        [disabled]="contratando" class="btn-contratar">
         <ion-spinner *ngIf="contratando" name="crescent"></ion-spinner>
         <span *ngIf="!contratando">Contratar Plan</span>
       </ion-button>
 
-      <ion-button
-        expand="block"
-        color="secondary"
-        fill="outline"
-        (click)="goBack()"
-      >
+      <ion-button expand="block" color="secondary" fill="outline" (click)="goBack()">
         Volver al Catálogo
       </ion-button>
     </div>

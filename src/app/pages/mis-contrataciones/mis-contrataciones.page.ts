@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms'; // ← AGREGAR
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ContratacionesService } from '../../services/contrataciones';
 import { Contratacion } from '../../models/contratacion.model';
@@ -11,12 +11,12 @@ import { Contratacion } from '../../models/contratacion.model';
   templateUrl: './mis-contrataciones.page.html',
   styleUrls: ['./mis-contrataciones.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule] // ← AGREGAR FormsModule
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule]
 })
 export class MisContratacionesPage implements OnInit {
   contrataciones: Contratacion[] = [];
   loading = false;
-  selectedFilter = 'todas';
+  selectedFilter: string = 'todas';
 
   constructor(
     private contratacionesService: ContratacionesService,
@@ -81,5 +81,10 @@ export class MisContratacionesPage implements OnInit {
 
   reloadContrataciones() {
     this.loadContrataciones();
+  }
+
+  onSegmentChange(ev: any) {
+    const v = ev.detail?.value;
+    this.selectedFilter = (v ?? 'todas').toString();
   }
 }

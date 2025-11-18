@@ -2,10 +2,10 @@
   <ion-toolbar color="primary">
     <ion-title>Catálogo de Planes</ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="isAuthenticated" [routerLink]="['/perfil']" fill="clear">
+      <ion-button *ngIf="isAuthenticated" [routerLink]="['/perfil']" fill="outline">
         <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="!isAuthenticated" (click)="irALogin()" fill="clear">
+      <ion-button *ngIf="!isAuthenticated" (click)="irALogin()" fill="outline">
         <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -20,22 +20,13 @@
   </div>
 
   <!-- Barra de búsqueda y filtros -->
-  <ion-searchbar
-    [(ngModel)]="searchText"
-    (ionChange)="onSearchChange()"
-    placeholder="Buscar plan..."
-    animated
-  ></ion-searchbar>
+  <ion-searchbar [(ngModel)]="searchText" (ionChange)="onSearchChange()" placeholder="Buscar plan..."
+    animated></ion-searchbar>
 
   <!-- Filtro por segmento -->
   <ion-item lines="none" class="filter-item">
     <ion-label>Segmento:</ion-label>
-    <ion-select
-      [(ngModel)]="selectedSegmento"
-      (ionChange)="onSegmentoChange()"
-      interface="popover"
-      placeholder="Todos"
-    >
+    <ion-select [(ngModel)]="selectedSegmento" (ionChange)="onSegmentoChange()" interface="popover" placeholder="Todos">
       <ion-select-option value="">Todos</ion-select-option>
       <ion-select-option *ngFor="let segmento of getSegmentos()" [value]="segmento">
         {{ segmento }}
@@ -51,11 +42,7 @@
 
   <!-- Lista de planes -->
   <div *ngIf="!loading && planesFiltrados.length > 0" class="planes-container">
-    <ion-card
-      *ngFor="let plan of planesFiltrados"
-      class="plan-card"
-      (click)="irADetalle(plan.id!)"
-    >
+    <ion-card *ngFor="let plan of planesFiltrados" class="plan-card" (click)="irADetalle(plan.id!)">
       <!-- Imagen del plan -->
       <div class="plan-image" *ngIf="plan.imagen_url">
         <img [src]="plan.imagen_url" alt="{{ plan.nombre }}" />

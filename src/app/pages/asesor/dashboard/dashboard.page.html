@@ -2,10 +2,10 @@
   <ion-toolbar color="primary">
     <ion-title>Dashboard - Mis Planes</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="reloadPlanes()">
+      <ion-button fill="outline" (click)="reloadPlanes()">
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
       </ion-button>
-      <ion-button fill="clear" (click)="irAlPerfil()">
+      <ion-button fill="outline" (click)="irAlPerfil()">
         <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -54,11 +54,7 @@
           <h3 class="plan-nombre">{{ plan.nombre }}</h3>
           <p class="plan-precio">${{ plan.precio }}/mes</p>
         </div>
-        <ion-toggle
-          [checked]="plan.activo"
-          (ionChange)="togglePlanActivo(plan, $event)"
-          color="primary"
-        ></ion-toggle>
+        <ion-toggle [checked]="plan.activo" (ionChange)="togglePlanActivo(plan, $event)" color="primary"></ion-toggle>
       </div>
 
       <!-- Imagen -->
@@ -83,11 +79,7 @@
         </div>
 
         <div class="plan-acciones">
-          <ion-button
-            fill="outline"
-            size="small"
-            (click)="irAEditarPlan(plan.id!)"
-          >
+          <ion-button fill="outline" size="small" (click)="irAEditarPlan(plan.id!)">
             <ion-icon slot="start" name="pencil-outline"></ion-icon>
             Editar
           </ion-button>
