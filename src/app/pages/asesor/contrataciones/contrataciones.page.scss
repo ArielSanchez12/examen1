@@ -1,3 +1,4 @@
+// ...existing code...
 .contrataciones-asesor-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -5,126 +6,57 @@
 }
 
 .filtro-card {
-  margin-bottom: 16px;
-  border-radius: 12px;
+  background: #111;
+  border: 1px solid #1e1e1e;
+  box-shadow: none;
 }
 
 .filter-item {
-  --background: #f0f2f5;
-  border-radius: 8px;
+  --background: #1a1a1a;
+  border: 1px solid #222;
 
   ion-label {
-    font-weight: 600;
-    color: #333;
-    margin-right: 12px;
-  }
-
-  ion-select {
-    --padding-top: 10px;
-    --padding-bottom: 10px;
+    color: #e0e0e0;
   }
 }
 
 .loading-wrapper,
 .vacio-wrapper {
-  text-align: center;
-  padding: 60px 20px;
-  color: #999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.vacio-wrapper ion-icon {
-  font-size: 56px;
-  color: #ddd;
+  color: #777;
+  ion-icon {
+    color: #333;
+  }
 }
 
 .contrato-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  height: 100%;
-  position: relative;
-}
-
-.contrato-card ion-card-header {
-  position: relative;
-  padding-bottom: 8px;
-}
-
-.contrato-card ion-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: 0.7rem;
-}
-
-.contrato-card ion-card-title {
-  font-size: 1rem;
-  margin-top: 8px;
+  background: #111;
+  border: 1px solid #1e1e1e;
+  box-shadow: none;
 }
 
 .contrato-card ion-card-subtitle {
-  color: #667eea;
-  font-weight: 500;
+  color: #d0d0d0;
 }
 
 .info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 0.9rem;
+  border-bottom: 1px solid #1e1e1e;
 
   .label {
-    color: #999;
-    font-weight: 600;
+    color: #777;
   }
-
   .valor {
-    color: #333;
-    font-weight: 500;
-  }
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-}
-
-.acciones-contrato {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-
-  ion-button {
-    margin: 0;
-    --border-radius: 8px;
+    color: #d0d0d0;
   }
 }
 
 .estado-select {
-  --background: #f0f2f5;
-  --padding-start: 10px;
-  --padding-end: 10px;
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 0.9rem;
+  --background: #1a1a1a;
+  border: 1px solid #222;
+  color: #e0e0e0;
 }
 
-@media (max-width: 600px) {
-  .contrataciones-asesor-container {
-    padding: 8px 8px 100px;
-  }
-
-  .contrato-card ion-card-title {
-    font-size: 0.95rem;
-  }
-
-  .info-item {
-    font-size: 0.85rem;
-  }
+ion-chip[outline="true"] {
+  --color: #e0e0e0;
+  --border-color: #2a2a2a;
 }
+// ...existing code...

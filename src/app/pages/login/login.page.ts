@@ -5,7 +5,7 @@ import { IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, IonButton, Ion
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { addIcons } from 'ionicons';
-import { phonePortraitOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, eyeOutline, alertCircleOutline } from 'ionicons/icons';
+import { phonePortraitOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, eyeOutline, alertCircleOutline, homeOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +25,7 @@ export class LoginPage implements OnInit {
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController
   ) {
-    addIcons({ phonePortraitOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, eyeOutline, alertCircleOutline });
+    addIcons({ phonePortraitOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, eyeOutline, alertCircleOutline, homeOutline });
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]

@@ -1,113 +1,116 @@
+// ...existing code...
 .contrataciones-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 12px 12px 100px;
+  padding: 12px 12px 110px;
 }
 
-.filtro-card {
+.filtros-container {
   margin-bottom: 16px;
+  background: #111;
+  border: 1px solid #1e1e1e;
   border-radius: 12px;
-}
+  padding: 8px 8px 4px;
 
-.filter-item {
-  --background: #f0f2f5;
-  border-radius: 8px;
-
-  ion-label {
-    font-weight: 600;
-    color: #333;
-    margin-right: 12px;
+  ion-segment {
+    --background: transparent;
   }
 
-  ion-select {
-    --padding-top: 10px;
-    --padding-bottom: 10px;
+  ion-segment-button {
+    --color: #9e9e9e;
+    --color-checked: #000;
+    --indicator-color: #e0e0e0;
+    --background: #1a1a1a;
+    --background-checked: #e0e0e0;
+    border: 1px solid #222;
+    margin: 4px;
+    border-radius: 8px;
   }
 }
 
-.loading-wrapper,
-.vacio-wrapper {
-  text-align: center;
-  padding: 60px 20px;
-  color: #999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.contrataciones-list {
+  display: grid;
   gap: 16px;
 }
 
-.vacio-wrapper ion-icon {
-  font-size: 56px;
-  color: #ddd;
+.contratacion-card {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  box-shadow: none;
+  position: relative;
 }
 
-.contrato-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  height: 100%;
+.estado-badge ion-badge {
+  --background: #1a1a1a;
+  --color: #e0e0e0;
+  border: 1px solid #222;
+}
+
+.plan-nombre {
+  color: #e0e0e0;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.fecha-contratacion {
+  margin: 4px 0 0;
+  font-size: 0.7rem;
+  color: #777;
+}
+
+.plan-info {
   display: flex;
   flex-direction: column;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  }
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
-.contrato-card ion-card-header {
-  position: relative;
-  padding-bottom: 8px;
-}
-
-.contrato-card ion-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: 0.7rem;
-}
-
-.contrato-card ion-card-title {
-  font-size: 1rem;
-  margin-top: 8px;
-}
-
-.contrato-info {
-  margin: 12px 0;
-}
-
-.info-fila {
+.info-item {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #bbb;
+  strong {
+    color: #9e9e9e;
+    font-weight: 500;
+  }
+}
+
+.notas {
+  margin: 8px 0 12px;
+  font-size: 0.75rem;
+  color: #9e9e9e;
+  p {
+    margin: 0;
+  }
+}
+
+.acciones {
+  display: flex;
   gap: 8px;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-  color: #666;
+  ion-button {
+    --border-radius: 6px;
+  }
+}
 
+.sin-contrataciones {
+  text-align: center;
+  padding: 60px 20px;
+  color: #777;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   ion-icon {
-    color: #667eea;
-    font-size: 18px;
+    font-size: 56px;
+    color: #333;
   }
 }
 
-.chat-btn {
-  margin-top: 12px;
-  --border-radius: 8px;
-}
-
-@media (max-width: 600px) {
-  .contrataciones-container {
-    padding: 8px 8px 100px;
-  }
-
-  .contrato-card ion-card-title {
-    font-size: 0.95rem;
-  }
-
-  .info-fila {
-    font-size: 0.85rem;
+@media (min-width: 680px) {
+  .contrataciones-list {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
+// ...existing code...

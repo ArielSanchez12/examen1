@@ -1,27 +1,29 @@
+// ...existing code...
 .registro-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: #000; /* antes gradiente */
 }
 
 .registro-container {
   max-width: 480px;
   margin: 0 auto;
-  padding: 24px 16px 100px;
+  padding: 32px 16px 120px;
 }
 
 .registro-card {
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  background: white;
+  box-shadow: none;
+  background: #111;
+  border: 1px solid #1e1e1e;
 }
 
 .registro-card ion-card-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #e0e0e0;
 }
 
 .registro-card ion-card-subtitle {
-  color: #999;
+  color: #777;
   margin-top: 4px;
 }
 
@@ -32,61 +34,77 @@
 }
 
 .input-item {
-  --background: #f0f2f5;
+  --background: #1a1a1a;
   --padding-start: 14px;
   --padding-end: 14px;
-  border-radius: 8px;
+  border: 1px solid #222;
+  border-radius: 10px;
   margin-bottom: 12px;
 
   ion-label {
-    color: #666;
+    color: #9e9e9e;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
-  ion-input {
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    color: #333;
-    font-size: 1rem;
-  }
-
+  ion-input,
   ion-select {
     --padding-top: 12px;
     --padding-bottom: 12px;
-    color: #333;
+    color: #fff;
+    font-size: 0.95rem;
+    --placeholder-color: #666;
   }
 }
 
 .btn-registro {
-  --border-radius: 8px;
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  --border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: .5px;
   margin-top: 16px;
 }
 
 .acciones-secundarias {
   text-align: center;
-  margin-top: 12px;
+  margin-top: 18px;
+  color: #9e9e9e;
 }
 
 .acciones-secundarias ion-button {
-  --color: #667eea;
+  --color: #e0e0e0;
+}
+
+.error {
+  font-size: 11px;
+  color: #ff6b6b;
+  margin-top: -6px;
+  margin-bottom: 8px;
+}
+
+.divider {
+  height: 1px;
+  background: #1e1e1e;
+  margin: 32px 0 16px;
+}
+
+.registro-link {
+  text-align: center;
+  p {
+    margin: 0 0 8px;
+    color: #9e9e9e;
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 480px) {
   .registro-container {
-    padding: 16px 12px 100px;
+    padding: 24px 12px 120px;
   }
-
   .registro-card ion-card-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
-
   .input-item {
     margin-bottom: 10px;
   }
 }
+// ...existing code...

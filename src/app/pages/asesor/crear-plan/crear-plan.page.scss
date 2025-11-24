@@ -1,130 +1,65 @@
+// ...existing code...
 .crear-plan-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 12px 12px 100px;
 }
 
-.form-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+.form-card,
+.imagen-card,
+ion-card {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  box-shadow: none;
 }
 
-.form-card ion-card-title {
-  color: #333;
-  font-size: 1.2rem;
-  font-weight: 700;
+.form-card ion-card-title,
+.imagen-card ion-card-title {
+  color: #e0e0e0;
 }
 
-.input-item {
-  --background: #f0f2f5;
-  --padding-start: 14px;
-  --padding-end: 14px;
+.input-item,
+.textarea-item,
+ion-item {
+  --background: #1a1a1a;
+  border: 1px solid #222;
   border-radius: 8px;
-  margin-bottom: 12px;
 
   ion-label {
-    color: #666;
-    font-weight: 500;
+    color: #9e9e9e;
   }
 
-  ion-input {
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    color: #333;
-  }
-
-  ion-select {
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    color: #333;
-  }
-}
-
-.textarea-item {
-  --background: #f0f2f5;
-  --padding-start: 14px;
-  --padding-end: 14px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-
-  ion-label {
-    color: #666;
-    font-weight: 500;
-  }
-
+  ion-input,
+  ion-select,
   ion-textarea {
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    color: #333;
+    color: #fff;
+    --placeholder-color: #666;
   }
 }
 
 .imagen-section {
-  margin: 20px 0;
-  padding: 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
-  border: 2px dashed #ddd;
+  background: #111;
+  border: 1px dashed #333;
+  color: #e0e0e0;
 }
 
 .imagen-label {
-  display: block;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 12px;
+  color: #e0e0e0;
 }
 
-.file-input {
-  display: none;
+.switch-item ion-label {
+  color: #e0e0e0;
 }
 
-.imagen-preview {
-  margin-top: 12px;
-  border-radius: 8px;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    max-height: 200px;
-    object-fit: cover;
-  }
+.acciones ion-button,
+.acciones-form ion-button {
+  --border-radius: 8px;
 }
 
-.switch-item {
-  --background: transparent;
-  margin-bottom: 20px;
-
-  ion-label {
-    margin-right: 12px;
+.acciones {
+  ion-button[fill="outline"] {
+    --border-color: #2a2a2a;
+    --color: #e0e0e0;
   }
 }
-
-.acciones-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 24px;
-  margin-bottom: 24px;
-
-  ion-button {
-    --border-radius: 8px;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    font-weight: 600;
-  }
-}
-
-@media (max-width: 600px) {
-  .crear-plan-container {
-    padding: 8px 8px 100px;
-  }
-
-  .form-card ion-card-title {
-    font-size: 1.1rem;
-  }
-
-  .input-item,
-  .textarea-item {
-    margin-bottom: 10px;
-  }
-}
+// ...existing code...
