@@ -1,90 +1,181 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonSpinner, IonChip, IonLabel, IonRefresher, IonRefresherContent, IonIcon, IonSegment, IonSegmentButton, IonButtons, IonBackButton, LoadingController, ToastController, AlertController } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { chatbubbleOutline, timeOutline, checkmarkCircleOutline, closeCircleOutline, personOutline, callOutline, banOutline, documentTextOutline, cashOutline, wifiOutline, ribbonOutline, calendarOutline } from 'ionicons/icons';
 import { ContratacionesService } from '../../../services/contrataciones';
-import { Contratacion } from '../../../models/contratacion.model';
+import { Contratacion, ContratoEstado } from '../../../models/models';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-contrataciones',
-  templateUrl: './contrataciones.page.html',
-  styleUrls: ['./contrataciones.page.scss'],
+  selector: 'app-contrataciones-asesor',
+  templateUrl: './contrataciones.page.html', // FIX: nombre correcto del template
+  styleUrls: ['./contrataciones.page.scss'], // FIX: nombre correcto del stylesheet
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonSpinner, IonChip, IonLabel, IonRefresher, IonRefresherContent, IonIcon, IonSegment, IonSegmentButton, IonButtons, IonBackButton]
 })
-export class ContratacionesPage implements OnInit {
+export class ContratacionesAsesorPage implements OnInit, OnDestroy {
   contrataciones: Contratacion[] = [];
+  contratacionesFiltradas: Contratacion[] = [];
   loading = false;
-  selectedFilter: string = 'pendiente';
+  filtroEstado: string = 'todas';
+  private contratacionesSubscription?: Subscription;
 
   constructor(
     private contratacionesService: ContratacionesService,
-    private alertController: AlertController
-  ) { }
+    private router: Router,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController
+  ) {
+    addIcons({ chatbubbleOutline, timeOutline, checkmarkCircleOutline, closeCircleOutline, personOutline, callOutline, banOutline, documentTextOutline, cashOutline, wifiOutline, ribbonOutline, calendarOutline });
+  }
 
   ngOnInit() {
     this.loadContrataciones();
+    this.subscribeToContratacionesChanges();
   }
 
-  private async loadContrataciones() {
+  ngOnDestroy() {
+    if (this.contratacionesSubscription) {
+      this.contratacionesSubscription.unsubscribe();
+    }
+  }
+
+  async loadContrataciones() {
     this.loading = true;
-    try {
-      this.contrataciones = await this.contratacionesService.getAllContrataciones();
-    } catch (error) {
-      console.error('Error al cargar contrataciones:', error);
-    } finally {
-      this.loading = false;
+    this.contrataciones = await this.contratacionesService.getAllContrataciones();
+    this.aplicarFiltro();
+    this.loading = false;
+  }
+
+  subscribeToContratacionesChanges() {
+    this.contratacionesSubscription = this.contratacionesService.contrataciones$.subscribe(contrataciones => {
+      if (contrataciones.length > 0) {
+        this.contrataciones = contrataciones;
+        this.aplicarFiltro();
+      }
+    });
+  }
+
+  onFiltroChange(event: any) {
+    this.filtroEstado = event.detail.value;
+    this.aplicarFiltro();
+  }
+
+  aplicarFiltro() {
+    if (this.filtroEstado === 'todas') {
+      this.contratacionesFiltradas = this.contrataciones;
+    } else {
+      this.contratacionesFiltradas = this.contrataciones.filter(
+        c => c.estado === this.filtroEstado
+      );
     }
   }
 
-  getContratacionesFiltradas() {
-    if (this.selectedFilter === 'todas') {
-      return this.contrataciones;
-    }
-    return this.contrataciones.filter(c => c.estado === this.selectedFilter);
-  }
-
-  async cambiarEstado(contratacion: Contratacion, nuevoEstado: string) {
-    try {
-      await this.contratacionesService.updateEstado(contratacion.id!, nuevoEstado as any);
-      contratacion.estado = nuevoEstado as any;
-
-      const alert = await this.alertController.create({
-        header: 'Éxito',
-        message: `Contratación ${nuevoEstado}`,
-        buttons: ['Aceptar']
-      });
-      await alert.present();
-    } catch (error) {
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: 'No se pudo actualizar el estado',
-        buttons: ['Aceptar']
-      });
-      await alert.present();
-    }
-  }
-
-  getEstadoColor(estado: string) {
+  getEstadoColor(estado: string): string {
     switch (estado) {
-      case 'aprobada':
-        return 'success';
-      case 'rechazada':
-        return 'danger';
       case 'pendiente':
         return 'warning';
+      case 'aceptado':
+        return 'success';
+      case 'rechazado':
+        return 'danger';
+      case 'cancelado':
+        return 'medium';
       default:
         return 'medium';
     }
   }
 
-  reloadContrataciones() {
-    this.loadContrataciones();
+  getEstadoIcon(estado: string): string {
+    switch (estado) {
+      case 'pendiente':
+        return 'time-outline';
+      case 'aceptado':
+        return 'checkmark-circle-outline';
+      case 'rechazado':
+        return 'close-circle-outline';
+      case 'cancelado':
+        return 'ban-outline';
+      default:
+        return 'time-outline';
+    }
   }
 
-  onSegmentChange(ev: any) {
-    const v = ev.detail?.value;
-    this.selectedFilter = (v ?? 'pendiente').toString();
+  async cambiarEstado(contratacion: Contratacion, nuevoEstado: ContratoEstado) {
+    const alert = await this.alertCtrl.create({
+      header: 'Confirmar acción',
+      message: `¿Deseas ${nuevoEstado === 'aceptado' ? 'aceptar' : 'rechazar'} esta contratación?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Confirmar',
+          handler: async () => {
+            await this.procesarCambioEstado(contratacion.id, nuevoEstado);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async procesarCambioEstado(contratacionId: number, nuevoEstado: ContratoEstado) {
+    const loading = await this.loadingCtrl.create({
+      message: 'Actualizando...'
+    });
+    await loading.present();
+
+    const result = await this.contratacionesService.updateEstado(contratacionId, nuevoEstado);
+    await loading.dismiss();
+
+    if (result.success) {
+      // Actualizar localmente el estado en las listas
+      const contratacion = this.contrataciones.find(c => c.id === contratacionId);
+      if (contratacion) {
+        contratacion.estado = nuevoEstado;
+      }
+      
+      const contratacionFiltrada = this.contratacionesFiltradas.find(c => c.id === contratacionId);
+      if (contratacionFiltrada) {
+        contratacionFiltrada.estado = nuevoEstado;
+      }
+      
+      // Volver a aplicar el filtro para que se mueva a la pestaña correcta
+      this.aplicarFiltro();
+      
+      const toast = await this.toastCtrl.create({
+        message: 'Estado actualizado correctamente',
+        duration: 2000,
+        color: 'success'
+      });
+      await toast.present();
+      
+      // Recargar después de un momento para sincronizar
+      setTimeout(() => {
+        this.loadContrataciones();
+      }, 500);
+    } else {
+      const toast = await this.toastCtrl.create({
+        message: result.error || 'Error al actualizar',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
+  }
+
+  abrirChat(contratacionId: number) {
+    this.router.navigate(['/pages/chat', contratacionId]);
+  }
+
+  async doRefresh(event: any) {
+    await this.loadContrataciones();
+    event.target.complete();
   }
 }

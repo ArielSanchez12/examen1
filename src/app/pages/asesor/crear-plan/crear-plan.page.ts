@@ -1,171 +1,209 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonCardHeader, IonCardTitle, IonSelect, IonSelectOption, IonButton, IonButtons, IonBackButton, IonCard, IonCardContent, IonItem, IonLabel, IonInput, IonTextarea, IonToggle, IonSpinner, IonIcon, LoadingController, ToastController } from '@ionic/angular/standalone';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { addIcons } from 'ionicons';
+import { imageOutline, addCircleOutline } from 'ionicons/icons';
 import { PlanesService } from '../../../services/planes';
-import { Plan } from '../../../models/plan.model';
+import { PlanMovil } from '../../../models/models';
 
 @Component({
   selector: 'app-crear-plan',
   templateUrl: './crear-plan.page.html',
   styleUrls: ['./crear-plan.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, RouterModule]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonButton, IonButtons, IonBackButton, IonCard, IonCardContent, IonItem, IonLabel, IonInput, IonTextarea, IonToggle, IonSpinner, IonIcon, IonCardHeader, IonCardTitle, IonSelect, IonSelectOption]
 })
 export class CrearPlanPage implements OnInit {
   planForm: FormGroup;
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+  isEditMode = false;
+  planId?: number;
   loading = false;
-  enviando = false;
-  isEditing = false;
-  planId: string | null = null;
-  imagenSeleccionada: File | null = null;
-  imagenPreview: string | null = null;
-  imagenActual: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private planesService: PlanesService,
-    private route: ActivatedRoute,
     private router: Router,
-    private alertController: AlertController
+    private route: ActivatedRoute,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController
   ) {
+    addIcons({ imageOutline, addCircleOutline });
     this.planForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
-      precio: ['', [Validators.required, Validators.min(0)]],
+      precio: [0, [Validators.required, Validators.min(0.01)]],
+      segmento: ['', Validators.required],
+      publico_objetivo: ['', Validators.required],
       datos: ['', Validators.required],
       minutos: ['', Validators.required],
       sms: ['', Validators.required],
-      velocidad_4g: [''],
-      velocidad_5g: [''],
-      redes_sociales: [''],
-      whatsapp: [''],
-      llamadas_internacionales: [''],
-      roaming: [''],
-      descripcion: [''],
-      segmento: ['', Validators.required],
-      publico_objetivo: [''],
+      velocidad: ['', Validators.required],
+      redes_sociales: ['', Validators.required],
       activo: [true]
     });
   }
 
-  ngOnInit() {
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.isEditing = true;
-        this.planId = params['id'];
-        this.loadPlan();
-      }
-    });
+  async ngOnInit() {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.planId = parseInt(idParam, 10);
+      this.isEditMode = true;
+      await this.loadPlan(this.planId);
+    }
   }
 
-  private async loadPlan() {
+  async loadPlan(id: number) {
     this.loading = true;
+    const plan = await this.planesService.getPlanById(id);
+    if (plan) {
+      this.planForm.patchValue({
+        nombre: plan.nombre,
+        precio: plan.precio,
+        segmento: plan.segmento,
+        publico_objetivo: plan.publico_objetivo,
+        datos: plan.datos,
+        minutos: plan.minutos,
+        sms: plan.sms,
+        velocidad: plan.velocidad,
+        redes_sociales: plan.redes_sociales,
+        activo: plan.activo
+      });
+      if (plan.imagen_url) {
+        this.previewUrl = plan.imagen_url;
+      }
+    }
+    this.loading = false;
+  }
+
+  async seleccionarImagen() {
     try {
-      const plan = await this.planesService.getPlanById(this.planId!);
-      if (plan) {
-        this.planForm.patchValue({
-          nombre: plan.nombre,
-          precio: plan.precio,
-          datos: plan.datos,
-          minutos: plan.minutos,
-          sms: plan.sms,
-          velocidad_4g: plan.velocidad_4g || '',
-          velocidad_5g: plan.velocidad_5g || '',
-          redes_sociales: plan.redes_sociales || '',
-          whatsapp: plan.whatsapp || '',
-          llamadas_internacionales: plan.llamadas_internacionales || '',
-          roaming: plan.roaming || '',
-          descripcion: plan.descripcion || '',
-          segmento: plan.segmento || '',
-          publico_objetivo: plan.publico_objetivo || '',
-          activo: plan.activo !== false
-        });
-        this.imagenActual = plan.imagen_url || null;
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Photos // Solo galería
+      });
+
+      if (image.dataUrl) {
+        this.previewUrl = image.dataUrl;
+        
+        // Convertir DataUrl a File para subir
+        const response = await fetch(image.dataUrl);
+        const blob = await response.blob();
+        this.selectedFile = new File([blob], 'plan-image.jpg', { type: 'image/jpeg' });
       }
     } catch (error) {
-      console.error('Error al cargar plan:', error);
-    } finally {
-      this.loading = false;
+      console.error('Error seleccionando imagen:', error);
+      const toast = await this.toastCtrl.create({
+        message: 'Error al seleccionar la imagen',
+        duration: 2000,
+        color: 'danger'
+      });
+      await toast.present();
     }
   }
 
-  onImagenSeleccionada(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      // Validar tamaño (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.mostrarError('La imagen no debe exceder 5MB');
-        return;
-      }
-
-      // Validar tipo
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        this.mostrarError('Solo se aceptan imágenes JPG y PNG');
-        return;
-      }
-
-      this.imagenSeleccionada = file;
-
-      // Preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagenPreview = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  async onGuardar() {
-    if (this.planForm.invalid) {
-      this.mostrarError('Por favor completa todos los campos requeridos');
+  async guardarPlan() {
+    if (!this.planForm.valid) {
+      const toast = await this.toastCtrl.create({
+        message: 'Por favor completa todos los campos requeridos',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
       return;
     }
 
-    this.enviando = true;
+    // Validar que se haya seleccionado una imagen (solo para crear nuevo)
+    if (!this.isEditMode && !this.selectedFile && !this.previewUrl) {
+      const toast = await this.toastCtrl.create({
+        message: 'Por favor selecciona una imagen para el plan',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
+
+    const loading = await this.loadingCtrl.create({
+      message: this.isEditMode ? 'Actualizando plan...' : 'Creando plan...'
+    });
+    await loading.present();
 
     try {
-      const planData: Plan = this.planForm.value;
+      let imageUrl = this.previewUrl;
 
-      if (this.isEditing && this.planId) {
-        await this.planesService.updatePlan(this.planId, planData, this.imagenSeleccionada || undefined);
-        const alert = await this.alertController.create({
-          header: 'Éxito',
-          message: 'Plan actualizado correctamente',
-          buttons: [{ text: 'Aceptar', handler: () => this.router.navigate(['/asesor/dashboard']) }]
-        });
-        await alert.present();
+      // Subir imagen si hay una nueva seleccionada
+      if (this.selectedFile) {
+        const tempId: number = this.planId || Date.now();
+        const uploadResult = await this.planesService.uploadImage(this.selectedFile, tempId);
+        if (uploadResult.success && uploadResult.url) {
+          imageUrl = uploadResult.url;
+        } else {
+          await loading.dismiss();
+          const toast = await this.toastCtrl.create({
+            message: 'Error al subir la imagen',
+            duration: 3000,
+            color: 'danger'
+          });
+          await toast.present();
+          return;
+        }
+      }
+
+      const planData = {
+        ...this.planForm.value,
+        imagen_url: imageUrl
+      };
+
+      let result;
+      if (this.isEditMode && this.planId) {
+        result = await this.planesService.updatePlan(this.planId, planData);
       } else {
-        await this.planesService.createPlan(planData, this.imagenSeleccionada || undefined);
-        const alert = await this.alertController.create({
-          header: 'Éxito',
-          message: 'Plan creado correctamente',
-          buttons: [{ text: 'Aceptar', handler: () => this.router.navigate(['/asesor/dashboard']) }]
+        result = await this.planesService.createPlan(planData);
+      }
+
+      await loading.dismiss();
+
+      if (result.success) {
+        // Esperar un momento para que la base de datos se actualice
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Forzar recarga de todos los planes
+        await this.planesService.getAllPlanes(true);
+        
+        const toast = await this.toastCtrl.create({
+          message: this.isEditMode ? 'Plan actualizado correctamente' : 'Plan creado correctamente',
+          duration: 2000,
+          color: 'success'
         });
-        await alert.present();
+        await toast.present();
+        
+        // Navegar al dashboard
+        this.router.navigate(['/pages/asesor/dashboard']);
+      } else {
+        const toast = await this.toastCtrl.create({
+          message: result.error || 'Error al guardar el plan',
+          duration: 3000,
+          color: 'danger'
+        });
+        await toast.present();
       }
     } catch (error: any) {
-      this.mostrarError(error.message || 'Error al guardar el plan');
-    } finally {
-      this.enviando = false;
+      await loading.dismiss();
+      const toast = await this.toastCtrl.create({
+        message: error.message || 'Error inesperado',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
     }
   }
-
-  private async mostrarError(mensaje: string) {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: mensaje,
-      buttons: ['Aceptar']
-    });
-    await alert.present();
-  }
-
-  goBack() {
-    this.router.navigate(['/asesor/dashboard']);
-  }
-
-  eliminarImagenSeleccionada() {
-    this.imagenSeleccionada = null;
-    this.imagenPreview = null;
+  cancelar() {
+    this.router.navigate(['/pages/asesor/dashboard']);
   }
 }

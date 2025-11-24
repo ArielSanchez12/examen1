@@ -1,10 +1,10 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/pages/mis-contrataciones"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="contratacion">
-      Chat - {{ contratacion.plan?.nombre }}
+      Chat - {{ contratacion.planes_moviles?.nombre }}
     </ion-title>
     <ion-title *ngIf="!contratacion">Chat</ion-title>
   </ion-toolbar>
@@ -21,15 +21,15 @@
     <div
       *ngFor="let mensaje of mensajes"
       class="mensaje"
-      [ngClass]="{ 'mensaje-propio': esDelUsuario(mensaje.remitente_id) }"
+      [ngClass]="{ 'mensaje-propio': isMine(mensaje) }"
     >
-      <div class="bubble" [ngClass]="{ 'bubble-propio': esDelUsuario(mensaje.remitente_id) }">
-        <p class="remitente" *ngIf="!esDelUsuario(mensaje.remitente_id)">
-          {{ mensaje.remitente?.nombre || 'Asesor' }}
+      <div class="bubble" [ngClass]="{ 'bubble-propio': isMine(mensaje) }">
+        <p class="remitente" *ngIf="!isMine(mensaje)">
+          {{ mensaje.emisor === contratacion?.usuario_id ? 'Usuario' : 'Asesor' }}
         </p>
         <p class="texto-mensaje">{{ mensaje.mensaje }}</p>
         <small class="hora">
-          {{ mensaje.created_at | date: 'short' }}
+          {{ mensaje.fecha | date: 'short' }}
         </small>
       </div>
     </div>
@@ -44,15 +44,15 @@
         placeholder="Escribe tu mensaje..."
         rows="3"
         maxlength="500"
-        (keypress)="handleKeyPress($event)"
-        [disabled]="enviando"
+        (keypress)="onKeyPress($event)"
+        [disabled]="sending"
       ></ion-textarea>
       <ion-button
         slot="end"
         color="primary"
         fill="clear"
         (click)="enviarMensaje()"
-        [disabled]="!nuevoMensaje.trim() || enviando"
+        [disabled]="!nuevoMensaje.trim() || sending"
       >
         <ion-icon slot="icon-only" name="send-outline"></ion-icon>
       </ion-button>

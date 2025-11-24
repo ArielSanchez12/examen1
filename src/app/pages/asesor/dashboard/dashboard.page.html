@@ -2,10 +2,10 @@
   <ion-toolbar color="primary">
     <ion-title>Dashboard - Mis Planes</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="outline" (click)="reloadPlanes()">
+      <ion-button fill="outline" (click)="loadPlanes()">
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
       </ion-button>
-      <ion-button fill="outline" (click)="irAlPerfil()">
+      <ion-button fill="outline" href="/pages/perfil">
         <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -15,23 +15,23 @@
 <ion-content class="ion-padding">
   <!-- Bienvenida -->
   <div class="bienvenida-section">
-    <h2>Bienvenido, {{ nombre }}</h2>
+    <h2>Bienvenido</h2>
     <p>Gestiona tus planes móviles aquí</p>
   </div>
 
   <!-- Botones de acción rápida -->
   <div class="acciones-rapidas">
-    <ion-button expand="block" color="primary" (click)="irACrearPlan()">
+    <ion-button expand="block" color="primary" (click)="crearPlan()">
       <ion-icon slot="start" name="add-circle-outline"></ion-icon>
       Crear Nuevo Plan
     </ion-button>
 
     <div class="acciones-row">
-      <ion-button fill="outline" expand="block" (click)="irAContrataciones()">
+      <ion-button fill="outline" expand="block" (click)="verContrataciones()">
         <ion-icon slot="start" name="document-text-outline"></ion-icon>
         Contrataciones
       </ion-button>
-      <ion-button fill="outline" expand="block" (click)="irAChats()">
+      <ion-button fill="outline" expand="block" (click)="verContrataciones()">
         <ion-icon slot="start" name="chatbubbles-outline"></ion-icon>
         Chats
       </ion-button>
@@ -54,7 +54,7 @@
           <h3 class="plan-nombre">{{ plan.nombre }}</h3>
           <p class="plan-precio">${{ plan.precio }}/mes</p>
         </div>
-        <ion-toggle [checked]="plan.activo" (ionChange)="togglePlanActivo(plan, $event)" color="primary"></ion-toggle>
+        <ion-toggle [checked]="plan.activo" (ionChange)="toggleActivo(plan)" color="primary"></ion-toggle>
       </div>
 
       <!-- Imagen -->
@@ -79,7 +79,7 @@
         </div>
 
         <div class="plan-acciones">
-          <ion-button fill="outline" size="small" (click)="irAEditarPlan(plan.id!)">
+          <ion-button fill="outline" size="small" (click)="editarPlan(plan.id)">
             <ion-icon slot="start" name="pencil-outline"></ion-icon>
             Editar
           </ion-button>
@@ -92,7 +92,7 @@
   <div *ngIf="!loading && planes.length === 0" class="sin-planes">
     <ion-icon name="cube-outline"></ion-icon>
     <p>No tienes planes aún</p>
-    <ion-button color="primary" (click)="irACrearPlan()">
+    <ion-button color="primary" (click)="crearPlan()">
       Crear Primer Plan
     </ion-button>
   </div>

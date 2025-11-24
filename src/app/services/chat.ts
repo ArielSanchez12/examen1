@@ -1,49 +1,39 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase';
-import { AuthService } from './auth';
 import { BehaviorSubject } from 'rxjs';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { Mensaje } from '../models/mensaje.model';
+import { MensajeChat, MensajeChatInsert } from '../models/models';
+import { AuthService } from './auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private mensajesSubject = new BehaviorSubject<Mensaje[]>([]);
-  public mensajes$ = this.mensajesSubject.asObservable();
-  private channel: RealtimeChannel | null = null;
+  private mensajes = new BehaviorSubject<MensajeChat[]>([]);
+  public mensajes$ = this.mensajes.asObservable();
+  private realtimeChannel?: RealtimeChannel;
+  private currentContratacionId?: number;
 
   constructor(
     private supabase: SupabaseService,
-    private auth: AuthService
-  ) { }
+    private authService: AuthService
+  ) {}
 
-  async getMensajes(contratacionId: string): Promise<Mensaje[]> {
-    try {
-      const { data, error } = await this.supabase.client
-        .from('mensajes_chat')
-        .select(`
-          *,
-          remitente:perfiles!mensajes_chat_remitente_id_fkey(id, nombre, email)
-        `)
-        .eq('contratacion_id', contratacionId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-
-      this.mensajesSubject.next(data || []);
-      return data || [];
-    } catch (error) {
-      console.error('Error al cargar mensajes:', error);
-      return [];
+  /**
+   * Suscribe a mensajes de una contratación específica
+   */
+  subscribeToChat(contratacionId: number) {
+    // Desuscribir del canal anterior si existe
+    if (this.realtimeChannel) {
+      this.supabase.client.removeChannel(this.realtimeChannel);
     }
-  }
 
-  subscribeToMessages(contratacionId: string) {
-    this.unsubscribeFromMessages();
+    this.currentContratacionId = contratacionId;
+    this.loadMensajes(contratacionId);
 
-    this.channel = this.supabase.client
-      .channel(`chat-${contratacionId}`)
+    // Suscribirse a cambios en tiempo real
+    this.realtimeChannel = this.supabase.client
+      .channel(`chat_${contratacionId}`)
       .on(
         'postgres_changes',
         {
@@ -52,49 +42,110 @@ export class ChatService {
           table: 'mensajes_chat',
           filter: `contratacion_id=eq.${contratacionId}`
         },
-        async (payload: any) => {
-          const mensaje = await this.supabase.client
-            .from('mensajes_chat')
-            .select(`
-              *,
-              remitente:perfiles!mensajes_chat_remitente_id_fkey(id, nombre, email)
-            `)
-            .eq('id', payload.new['id'])
-            .single();
-
-          if (mensaje.data) {
-            const mensajesActuales = this.mensajesSubject.value;
-            this.mensajesSubject.next([...mensajesActuales, mensaje.data]);
-          }
+        (payload) => {
+          this.loadMensajes(contratacionId);
         }
       )
       .subscribe();
   }
 
-  async enviarMensaje(contratacionId: string, mensaje: string) {
-    try {
-      const { data, error } = await this.supabase.client
-        .from('mensajes_chat')
-        .insert({
-          contratacion_id: contratacionId,
-          mensaje: mensaje,
-          // FIX: Usar el getter en lugar del método
-          remitente_id: this.auth.currentUser?.id,
-        })
-        .select('*, remitente:perfiles(*)')
-        .single();
+  /**
+   * Carga mensajes desde la base de datos
+   */
+  private async loadMensajes(contratacionId: number) {
+    const { data, error } = await this.supabase.client
+      .from('mensajes_chat')
+      .select('*')
+      .eq('contratacion_id', contratacionId)
+      .order('fecha', { ascending: true});
 
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error al enviar mensaje:', error);
-      throw error;
+    if (data && !error) {
+      this.mensajes.next(data as any);
     }
   }
 
-  unsubscribeFromMessages() {
-    if (this.channel) {
-      this.supabase.client.removeChannel(this.channel);
-      this.channel = null;
+  /**
+   * Obtiene todos los mensajes de una contratación
+   */
+  async getMensajes(contratacionId: string): Promise<MensajeChat[]> {
+    const { data, error } = await this.supabase.client
+      .from('mensajes_chat')
+      .select(`
+        *,
+        emisor:perfiles!mensajes_chat_emisor_id_fkey(id, nombre, rol)
+      `)
+      .eq('contratacion_id', contratacionId)
+      .order('created_at', { ascending: true });
+
+    return data as any || [];
+  }
+
+  /**
+   * Envía un mensaje
+   */
+  async sendMensaje(contratacionId: number, mensaje: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const currentProfile = this.authService.getCurrentProfile();
+      if (!currentProfile) throw new Error('Usuario no autenticado');
+
+      const mensajeData: MensajeChatInsert = {
+        contratacion_id: contratacionId,
+        emisor: currentProfile.user_id,
+        mensaje
+      };
+
+      const { error } = await this.supabase.client
+        .from('mensajes_chat')
+        .insert(mensajeData);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error enviando mensaje:', error);
+      return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Marca mensajes como leídos
+   */
+  async markAsRead(contratacionId: number): Promise<{ success: boolean; error?: string }> {
+    try {
+      const currentProfile = this.authService.getCurrentProfile();
+      if (!currentProfile) throw new Error('Usuario no autenticado');
+
+      // Nota: La tabla no tiene campo leido, esta función no hace nada por ahora
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error marcando mensajes como leídos:', err);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Obtiene el conteo de mensajes no leídos
+   */
+  async getUnreadCount(contratacionId: number): Promise<number> {
+    // Nota: La tabla no tiene campo leido, retorna 0 por ahora
+    return 0;
+  }
+
+  /**
+   * Desuscribe del chat actual
+   */
+  unsubscribe() {
+    if (this.realtimeChannel) {
+      this.supabase.client.removeChannel(this.realtimeChannel);
+      this.realtimeChannel = undefined;
+    }
+    this.currentContratacionId = undefined;
+    this.mensajes.next([]);
+  }
+
+  /**
+   * Destruir suscripción al salir
+   */
+  ngOnDestroy() {
+    this.unsubscribe();
   }
 }

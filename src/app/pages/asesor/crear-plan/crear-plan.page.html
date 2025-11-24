@@ -1,42 +1,31 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/asesor/dashboard"></ion-back-button>
+      <ion-back-button defaultHref="/pages/asesor/dashboard"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ isEditing ? 'Editar' : 'Crear' }} Plan</ion-title>
+    <ion-title>{{ isEditMode ? 'Editar' : 'Crear' }} Plan</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content *ngIf="!loading" class="ion-padding">
-  <form [formGroup]="planForm" (ngSubmit)="onGuardar()">
+  <form [formGroup]="planForm" (ngSubmit)="guardarPlan()">
     <!-- Sección de Imagen -->
     <ion-card class="imagen-card">
       <ion-card-header>
         <ion-card-title>Imagen Promocional</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <!-- Preview de imagen nueva -->
-        <div *ngIf="imagenPreview" class="imagen-preview">
-          <img [src]="imagenPreview" alt="Preview" />
-          <ion-button color="danger" fill="clear" size="small" (click)="eliminarImagenSeleccionada()">
+        <div *ngIf="previewUrl" class="imagen-preview">
+          <img [src]="previewUrl" alt="Preview" />
+          <ion-button color="danger" fill="clear" size="small" (click)="previewUrl = null; selectedFile = null">
             <ion-icon slot="start" name="trash-outline"></ion-icon>
             Eliminar
           </ion-button>
         </div>
 
-        <!-- Imagen actual -->
-        <div *ngIf="imagenActual && !imagenPreview" class="imagen-actual">
-          <p>Imagen actual:</p>
-          <img [src]="imagenActual" alt="Plan" />
-        </div>
-
-        <!-- Input de carga -->
-        <input #fileInput type="file" accept="image/jpeg,image/png" (change)="onImagenSeleccionada($event)"
-          style="display: none" />
-
-        <ion-button fill="outline" expand="block" (click)="fileInput.click()" [disabled]="imagenPreview !== null">
+        <ion-button fill="outline" expand="block" (click)="seleccionarImagen()" [disabled]="!!previewUrl">
           <ion-icon slot="start" name="image-outline"></ion-icon>
-          Seleccionar Imagen (JPG/PNG, máx 5MB)
+          Seleccionar Imagen (JPG/PNG)
         </ion-button>
       </ion-card-content>
     </ion-card>
@@ -68,22 +57,9 @@
 
         <ion-item>
           <ion-input label="Público Objetivo" labelPlacement="floating" formControlName="publico_objetivo"
-            placeholder="Ej: Usuarios casuales, estudiantes"></ion-input>
+            placeholder="Ej: Estudiantes, uso casual"></ion-input>
         </ion-item>
 
-        <ion-item>
-          <ion-textarea label="Descripción" labelPlacement="floating" formControlName="descripcion"
-            placeholder="Descripción del plan" rows="3"></ion-textarea>
-        </ion-item>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Características Técnicas -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Características Técnicas</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
         <ion-item>
           <ion-input label="Datos Móviles" labelPlacement="floating" formControlName="datos"
             placeholder="Ej: 5 GB mensuales (4G LTE)"></ion-input>
@@ -96,37 +72,17 @@
 
         <ion-item>
           <ion-input label="SMS" labelPlacement="floating" formControlName="sms"
-            placeholder="Ej: Ilimitados a nivel nacional"></ion-input>
+            placeholder="Ej: Ilimitados"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input label="Velocidad 4G" labelPlacement="floating" formControlName="velocidad_4g"
-            placeholder="Ej: Hasta 50 Mbps"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input label="Velocidad 5G (Opcional)" labelPlacement="floating" formControlName="velocidad_5g"
-            placeholder="Ej: Hasta 300 Mbps"></ion-input>
+          <ion-input label="Velocidad / Tecnología" labelPlacement="floating" formControlName="velocidad"
+            placeholder="Ej: 4G LTE hasta 50 Mbps"></ion-input>
         </ion-item>
 
         <ion-item>
           <ion-input label="Redes Sociales" labelPlacement="floating" formControlName="redes_sociales"
-            placeholder="Ej: Facebook, Instagram, TikTok GRATIS"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input label="WhatsApp" labelPlacement="floating" formControlName="whatsapp"
-            placeholder="Ej: Incluido en los 5GB"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input label="Llamadas Internacionales" labelPlacement="floating"
-            formControlName="llamadas_internacionales" placeholder="Ej: $0.15/min"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input label="Roaming" labelPlacement="floating" formControlName="roaming"
-            placeholder="Ej: No incluido"></ion-input>
+            placeholder="Ej: Facebook, Instagram (incluidas)"></ion-input>
         </ion-item>
       </ion-card-content>
     </ion-card>
@@ -141,21 +97,20 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Botones de acción -->
+    <!-- Botones -->
     <div class="acciones">
-      <ion-button expand="block" color="primary" type="submit" [disabled]="planForm.invalid || enviando">
-        <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
-        <span *ngIf="!enviando">{{ isEditing ? 'Actualizar' : 'Crear' }} Plan</span>
+      <ion-button expand="block" color="primary" type="submit" [disabled]="planForm.invalid || loading">
+        <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+        <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Crear' }} Plan</span>
       </ion-button>
 
-      <ion-button expand="block" fill="outline" type="button" (click)="goBack()">
+      <ion-button expand="block" fill="outline" type="button" (click)="cancelar()">
         Cancelar
       </ion-button>
     </div>
   </form>
 </ion-content>
 
-<!-- Loading -->
 <div *ngIf="loading" class="text-center" style="padding: 80px 20px;">
   <ion-spinner name="crescent"></ion-spinner>
   <p>Cargando plan...</p>

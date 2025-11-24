@@ -1,42 +1,47 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase';
-import { Plan } from '../models/plan.model';
 import { BehaviorSubject } from 'rxjs';
+import { RealtimeChannel } from '@supabase/supabase-js';
+import { PlanMovil, PlanMovilInsert, PlanMovilUpdate } from '../models/models';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlanesService {
-  private planesSubject = new BehaviorSubject<Plan[]>([]);
-  public planes$ = this.planesSubject.asObservable();
+  private planes = new BehaviorSubject<PlanMovil[]>([]);
+  public planes$ = this.planes.asObservable();
+  private realtimeChannel?: RealtimeChannel;
 
   constructor(private supabase: SupabaseService) {
     this.loadPlanes();
     this.subscribeToChanges();
   }
 
-  private async loadPlanes() {
+  /**
+   * Carga todos los planes activos
+   */
+  async loadPlanes() {
     const { data, error } = await this.supabase.client
       .from('planes_moviles')
       .select('*')
       .eq('activo', true)
-      .order('precio', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (data && !error) {
-      this.planesSubject.next(data);
+      this.planes.next(data as PlanMovil[]);
     }
   }
 
+  /**
+   * Suscribe a cambios en tiempo real
+   */
   private subscribeToChanges() {
-    this.supabase.client
-      .channel('planes_changes')
+    this.realtimeChannel = this.supabase.client
+      .channel('planes_moviles_changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'planes_moviles'
-        },
+        { event: '*', schema: 'public', table: 'planes_moviles' },
         () => {
           this.loadPlanes();
         }
@@ -44,106 +49,163 @@ export class PlanesService {
       .subscribe();
   }
 
-  async getAllPlanes() {
-    const { data, error } = await this.supabase.client
+  /**
+   * Obtiene todos los planes (incluye inactivos para asesores)
+   */
+  async getAllPlanes(includeInactive = false): Promise<PlanMovil[]> {
+    let query = this.supabase.client
       .from('planes_moviles')
       .select('*')
-      .order('precio', { ascending: true });
+      .order('id', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
+    if (!includeInactive) {
+      query = query.eq('activo', true);
+    }
+
+    const { data, error } = await query;
+    return data as PlanMovil[] || [];
   }
 
-  async getPlanById(id: string) {
+  /**
+   * Obtiene un plan por ID
+   */
+  async getPlanById(id: number): Promise<PlanMovil | null> {
     const { data, error } = await this.supabase.client
       .from('planes_moviles')
       .select('*')
       .eq('id', id)
       .single();
 
-    if (error) throw error;
-    return data;
+    return data as PlanMovil || null;
   }
 
-  async createPlan(plan: Plan, imagen?: File) {
-    let imagenUrl = '';
+  /**
+   * Crea un nuevo plan
+   */
+  async createPlan(plan: PlanMovilInsert): Promise<{ success: boolean; data?: PlanMovil; error?: string }> {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('planes_moviles')
+        .insert(plan)
+        .select()
+        .single();
 
-    if (imagen) {
-      const fileName = `${Date.now()}_${imagen.name}`;
+      if (error) throw error;
+      return { success: true, data: data as PlanMovil };
+    } catch (error: any) {
+      console.error('Error creando plan:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Actualiza un plan existente
+   */
+  async updatePlan(id: number, updates: PlanMovilUpdate): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await this.supabase.client
+        .from('planes_moviles')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error actualizando plan:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Cambia el estado activo/inactivo de un plan
+   */
+  async toggleActivo(id: number, activo: boolean): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await this.supabase.client
+        .from('planes_moviles')
+        .update({ activo })
+        .eq('id', id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error cambiando estado del plan:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Elimina un plan permanentemente
+   */
+  async deletePlan(id: number): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await this.supabase.client
+        .from('planes_moviles')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error eliminando plan:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Sube una imagen al bucket de Storage
+   */
+  async uploadImage(file: File, planId: number): Promise<{ success: boolean; url?: string; error?: string }> {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${planId}-${Date.now()}.${fileExt}`;
       const filePath = `planes/${fileName}`;
-      
-      await this.supabase.uploadFile('planes-imagenes', filePath, imagen);
-      imagenUrl = this.supabase.getPublicUrl('planes-imagenes', filePath);
+
+      const { error: uploadError } = await this.supabase.client.storage
+        .from('planes-imagenes')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = this.supabase.client.storage
+        .from('planes-imagenes')
+        .getPublicUrl(filePath);
+
+      return { success: true, url: data.publicUrl };
+    } catch (error: any) {
+      console.error('Error subiendo imagen:', error);
+      return { success: false, error: error.message };
     }
-
-    const { data, error } = await this.supabase.client
-      .from('planes_moviles')
-      .insert({
-        ...plan,
-        imagen_url: imagenUrl,
-        updated_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
   }
 
-  async updatePlan(id: string, plan: Partial<Plan>, imagen?: File) {
-    let imagenUrl = plan.imagen_url;
+  /**
+   * Elimina una imagen del bucket
+   */
+  async deleteImage(imageUrl: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Extraer el path de la URL
+      const urlParts = imageUrl.split('/');
+      const bucketIndex = urlParts.indexOf('planes-imagenes');
+      const filePath = urlParts.slice(bucketIndex + 1).join('/');
 
-    if (imagen) {
-      // Eliminar imagen anterior si existe
-      if (plan.imagen_url) {
-        const oldPath = plan.imagen_url.split('/').slice(-2).join('/');
-        await this.supabase.deleteFile('planes-imagenes', oldPath);
-      }
+      const { error } = await this.supabase.client.storage
+        .from('planes-imagenes')
+        .remove([filePath]);
 
-      const fileName = `${Date.now()}_${imagen.name}`;
-      const filePath = `planes/${fileName}`;
-      
-      await this.supabase.uploadFile('planes-imagenes', filePath, imagen);
-      imagenUrl = this.supabase.getPublicUrl('planes-imagenes', filePath);
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error eliminando imagen:', error);
+      return { success: false, error: error.message };
     }
-
-    const { data, error } = await this.supabase.client
-      .from('planes_moviles')
-      .update({
-        ...plan,
-        imagen_url: imagenUrl,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
   }
 
-  async deletePlan(id: string) {
-    const plan = await this.getPlanById(id);
-    
-    if (plan?.imagen_url) {
-      const oldPath = plan.imagen_url.split('/').slice(-2).join('/');
-      await this.supabase.deleteFile('planes-imagenes', oldPath);
+  /**
+   * Destruir suscripción al salir
+   */
+  ngOnDestroy() {
+    if (this.realtimeChannel) {
+      this.supabase.client.removeChannel(this.realtimeChannel);
     }
-
-    const { error } = await this.supabase.client
-      .from('planes_moviles')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-  }
-
-  async togglePlanActivo(id: string, activo: boolean) {
-    const { error } = await this.supabase.client
-      .from('planes_moviles')
-      .update({ activo })
-      .eq('id', id);
-
-    if (error) throw error;
   }
 }

@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/catalogo"></ion-back-button>
+      <ion-back-button defaultHref="/pages/catalogo"></ion-back-button>
     </ion-buttons>
     <ion-title>Detalle del Plan</ion-title>
-    <ion-buttons slot="end" *ngIf="isAsesor">
-      <ion-button fill="outline" (click)="editarPlan()">
+    <ion-buttons slot="end" *ngIf="!isUsuarioRegistrado">
+      <ion-button fill="outline" [routerLink]="['/pages/asesor/crear-plan', plan?.id]">
         <ion-icon slot="icon-only" name="pencil-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -33,11 +33,6 @@
     <div class="precio-container">
       <span class="precio-grande">${{ plan.precio }}</span>
       <span class="precio-periodo">/mes</span>
-    </div>
-
-    <!-- Descripción -->
-    <div class="descripcion" *ngIf="plan.descripcion">
-      <p>{{ plan.descripcion }}</p>
     </div>
 
     <!-- Características principales (destacadas) -->
@@ -70,19 +65,11 @@
           </div>
         </div>
 
-        <div class="caracteristica-principal">
-          <ion-icon name="speed-outline"></ion-icon>
+        <div class="caracteristica-principal" *ngIf="plan.velocidad">
+          <ion-icon name="speedometer-outline"></ion-icon>
           <div class="caracteristica-texto">
-            <strong>Velocidad 4G</strong>
-            <p>{{ plan.velocidad_4g }}</p>
-          </div>
-        </div>
-
-        <div class="caracteristica-principal" *ngIf="plan.velocidad_5g">
-          <ion-icon name="flash-outline"></ion-icon>
-          <div class="caracteristica-texto">
-            <strong>Velocidad 5G</strong>
-            <p>{{ plan.velocidad_5g }}</p>
+            <strong>Velocidad</strong>
+            <p>{{ plan.velocidad }}</p>
           </div>
         </div>
 
@@ -93,42 +80,27 @@
             <p>{{ plan.redes_sociales }}</p>
           </div>
         </div>
-
-        <div class="caracteristica-principal" *ngIf="plan.whatsapp">
-          <ion-icon name="chatbubble-outline"></ion-icon>
-          <div class="caracteristica-texto">
-            <strong>WhatsApp</strong>
-            <p>{{ plan.whatsapp }}</p>
-          </div>
-        </div>
-
-        <div class="caracteristica-principal" *ngIf="plan.llamadas_internacionales">
-          <ion-icon name="globe-outline"></ion-icon>
-          <div class="caracteristica-texto">
-            <strong>Llamadas Internacionales</strong>
-            <p>{{ plan.llamadas_internacionales }}</p>
-          </div>
-        </div>
-
-        <div class="caracteristica-principal" *ngIf="plan.roaming">
-          <ion-icon name="earth-outline"></ion-icon>
-          <div class="caracteristica-texto">
-            <strong>Roaming</strong>
-            <p>{{ plan.roaming }}</p>
-          </div>
-        </div>
       </ion-card-content>
     </ion-card>
 
     <!-- Botones de acción -->
     <div class="acciones-container">
-      <ion-button *ngIf="!isAsesor" expand="block" color="primary" size="large" (click)="contratarPlan()"
-        [disabled]="contratando" class="btn-contratar">
-        <ion-spinner *ngIf="contratando" name="crescent"></ion-spinner>
-        <span *ngIf="!contratando">Contratar Plan</span>
+      <ion-button
+        *ngIf="isUsuarioRegistrado"
+        expand="block"
+        color="primary"
+        size="large"
+        (click)="contratar()
+        "
+        [disabled]="yaContratoEstePlan || tieneContratacionActiva"
+        class="btn-contratar"
+      >
+        <span *ngIf="!yaContratoEstePlan && !tieneContratacionActiva">Contratar Plan</span>
+        <span *ngIf="yaContratoEstePlan">Ya contrataste este plan</span>
+        <span *ngIf="!yaContratoEstePlan && tieneContratacionActiva">Ya tienes una contratación activa</span>
       </ion-button>
 
-      <ion-button expand="block" color="secondary" fill="outline" (click)="goBack()">
+      <ion-button expand="block" color="secondary" fill="outline" [routerLink]="['/pages/catalogo']">
         Volver al Catálogo
       </ion-button>
     </div>

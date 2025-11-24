@@ -1,42 +1,92 @@
 .registro-content {
-  .header {
-    text-align: center;
-    margin: 20px 0 30px;
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
 
-    h1 {
-      margin: 0 0 8px;
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--ion-color-primary);
-    }
-    p {
-      margin: 0;
-      color: var(--ion-color-medium);
-    }
+.registro-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 100px;
+}
+
+.registro-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: white;
+}
+
+.registro-card ion-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.registro-card ion-card-subtitle {
+  color: #999;
+  margin-top: 4px;
+}
+
+.registro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-item {
+  --background: #f0f2f5;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+
+  ion-label {
+    color: #666;
+    font-weight: 500;
+    font-size: 0.9rem;
   }
 
-  ion-item {
+  ion-input {
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    color: #333;
+    font-size: 1rem;
+  }
+
+  ion-select {
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    color: #333;
+  }
+}
+
+.btn-registro {
+  --border-radius: 8px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 16px;
+}
+
+.acciones-secundarias {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.acciones-secundarias ion-button {
+  --color: #667eea;
+}
+
+@media (max-width: 480px) {
+  .registro-container {
+    padding: 16px 12px 100px;
+  }
+
+  .registro-card ion-card-title {
+    font-size: 1.3rem;
+  }
+
+  .input-item {
     margin-bottom: 10px;
-  }
-
-  .error {
-    color: var(--ion-color-danger);
-    font-size: 12px;
-    margin: 4px 6px 10px;
-  }
-
-  .divider {
-    height: 1px;
-    background: #eee;
-    margin: 20px 0;
-  }
-
-  .registro-link {
-    text-align: center;
-
-    p {
-      margin: 0 0 10px;
-      color: var(--ion-color-medium);
-    }
   }
 }

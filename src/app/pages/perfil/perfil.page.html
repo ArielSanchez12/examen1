@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button (click)="irAlCatalogo()"></ion-back-button>
+      <ion-back-button defaultHref="/pages/catalogo"></ion-back-button>
     </ion-buttons>
     <ion-title>Mi Perfil</ion-title>
   </ion-toolbar>
@@ -13,8 +13,8 @@
     <div class="avatar">
       <ion-icon name="person-circle-outline"></ion-icon>
     </div>
-    <h2 class="nombre">{{ nombre }}</h2>
-    <ion-badge [color]="getRolColor()">{{ getRolTexto() }}</ion-badge>
+    <h2 class="nombre">{{ perfil?.nombre }}</h2>
+    <ion-badge [color]="getRolColor(perfil?.rol || '')">{{ getRolLabel(perfil?.rol || '') }}</ion-badge>
   </div>
 
   <!-- Información del perfil -->
@@ -22,12 +22,12 @@
     <ion-card-content>
       <div class="info-item">
         <label>Email</label>
-        <p>{{ email }}</p>
+        <p>—</p>
       </div>
 
       <div class="info-item">
         <label>Tipo de Cuenta</label>
-        <p>{{ getRolTexto() }}</p>
+        <p>{{ getRolLabel(perfil?.rol || '') }}</p>
       </div>
 
       <div class="info-item">
@@ -40,7 +40,7 @@
   <!-- Opciones -->
   <ion-card class="opciones-card">
     <ion-card-content>
-      <ion-item lines="none" (click)="irAlCatalogo()">
+      <ion-item lines="none" [routerLink]="['/pages/catalogo']">
         <ion-icon name="home-outline" slot="start" color="primary"></ion-icon>
         <ion-label>
           <h3>Volver al Catálogo</h3>
@@ -56,10 +56,11 @@
     expand="block"
     color="danger"
     fill="outline"
-    (click)="cerrarSesion()"
-    [disabled]="isLoading"
+    (click)="cerrarSesion()
+    "
+    [disabled]="loading"
   >
-    <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-    <span *ngIf="!isLoading">Cerrar Sesión</span>
+    <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+    <span *ngIf="!loading">Cerrar Sesión</span>
   </ion-button>
 </ion-content>

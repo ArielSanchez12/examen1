@@ -1,133 +1,71 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // <-- agregado
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonCard, IonCardHeader, IonButtons, IonSearchbar, IonItem, IonSelect, IonSelectOption, IonFab, IonFabButton, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonSpinner, IonRefresher, IonRefresherContent, IonGrid, IonRow, IonCol, IonIcon, IonChip, IonLabel } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { phonePortraitOutline, wifiOutline, callOutline, chatbubbleOutline, personOutline, logInOutline, appsOutline } from 'ionicons/icons';
 import { PlanesService } from '../../services/planes';
 import { AuthService } from '../../services/auth';
-import { Plan } from '../../models/plan.model';
+import { PlanMovil } from '../../models/models';
+import { Subscription } from 'rxjs';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
   templateUrl: './catalogo.page.html',
   styleUrls: ['./catalogo.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule] // <-- agregado
+  imports: [RouterModule, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonCard, IonCardHeader, IonButtons, IonSearchbar, IonItem, IonSelect, IonSelectOption, IonFab, IonFabButton, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonSpinner, IonRefresher, IonRefresherContent, IonGrid, IonRow, IonCol, IonIcon, IonChip, IonLabel]
 })
-export class CatalogoPage implements OnInit {
-  planes: Plan[] = [];
-  planesBasico: Plan[] = [];
-  planesIntermedio: Plan[] = [];
-  planesPremium: Plan[] = [];
+export class CatalogoPage implements OnInit, OnDestroy {
+  planes: PlanMovil[] = [];
   loading = false;
   isAuthenticated = false;
-  isAsesor = false;
-
-  // <-- añadidos para el template
-  searchText: string = '';
-  selectedSegment: string = 'todos';
-  selectedSegmento: string = 'todos';
+  private planesSubscription?: Subscription;
 
   constructor(
     private planesService: PlanesService,
     private authService: AuthService,
     private router: Router
-  ) { }
-
-  ngOnInit() {
-    this.loadPlanes();
-    // getters (sin paréntesis)
-    this.isAuthenticated = this.authService.isAuthenticated;
-    this.isAsesor = this.authService.isAsesor;
-    this.selectedSegmento = this.selectedSegment; // sincronizar con el select
+  ) {
+    addIcons({ phonePortraitOutline, wifiOutline, callOutline, chatbubbleOutline, personOutline, logInOutline, appsOutline });
   }
 
-  private async loadPlanes() {
-    this.loading = true;
-    try {
-      this.planes = await this.planesService.getAllPlanes();
-      this.categorizarPlanes();
-    } catch (error) {
-      console.error('Error al cargar planes:', error);
-      this.planes = [];
-    } finally {
-      this.loading = false;
+  ngOnInit() {
+    this.isAuthenticated = this.authService.isAuthenticated();
+    this.loadPlanes();
+    this.subscribeToPlanesChanges();
+  }
+
+  ngOnDestroy() {
+    if (this.planesSubscription) {
+      this.planesSubscription.unsubscribe();
     }
   }
 
-  private categorizarPlanes() {
-    const norm = (s?: string) => (s || '').toLowerCase();
-    this.planesBasico = this.planes.filter(p => {
-      const seg = norm(p.segmento);
-      return seg.includes('básico') || seg.includes('basico') || seg.includes('entrada');
-    });
-    this.planesIntermedio = this.planes.filter(p => {
-      const seg = norm(p.segmento);
-      return seg.includes('medio') || seg.includes('estándar') || seg.includes('estandar');
-    });
-    this.planesPremium = this.planes.filter(p => {
-      const seg = norm(p.segmento);
-      return seg.includes('premium') || seg.includes('alto');
+  async loadPlanes() {
+    this.loading = true;
+    this.planes = await this.planesService.getAllPlanes();
+    this.loading = false;
+  }
+
+  subscribeToPlanesChanges() {
+    this.planesSubscription = this.planesService.planes$.subscribe(planes => {
+      this.planes = planes;
     });
   }
 
-  // Getter usado por el template (planesFiltrados)
-  get planesFiltrados(): Plan[] {
-    const base =
-      this.selectedSegment === 'basico' ? this.planesBasico :
-        this.selectedSegment === 'intermedio' ? this.planesIntermedio :
-          this.selectedSegment === 'premium' ? this.planesPremium :
-            this.planes;
-
-    const q = this.searchText.trim().toLowerCase();
-    if (!q) return base;
-
-    return base.filter(p => {
-      const nombre = (p.nombre || '').toLowerCase();
-      const desc = (p.descripcion || '').toLowerCase();
-      return nombre.includes(q) || desc.includes(q);
-    });
+  verDetalle(planId: number) {
+    this.router.navigate(['/pages/detalle-plan', planId]);
   }
 
-  // Si el template llama este método, no falla (no hace falta lógica adicional)
-  onSearchChange() {
-    // intencionalmente vacío; el binding bidireccional ya actualiza planesFiltrados
+  goToLogin() {
+    this.router.navigate(['/pages/login']);
   }
 
-  onSegmentChange(event: any) {
-    this.selectedSegment = event?.detail?.value || 'todos';
-    this.selectedSegmento = this.selectedSegment; // mantener ambos en sync
-  }
-
-  // El template usa onSegmentoChange()
-  onSegmentoChange() {
-    this.selectedSegment = this.selectedSegmento;
-  }
-
-  // Usados por el template
-  getSegmentos(): string[] {
-    return ['todos', 'basico', 'intermedio', 'premium'];
-  }
-
-  irAlPlan(planId: string) {
-    this.router.navigate(['/detalle-plan', planId]);
-  }
-
-  // El template usa irADetalle()
-  irADetalle(planId: string) {
-    this.irAlPlan(planId);
-  }
-
-  // El template usa irADashboard()
-  irADashboard() {
-    this.router.navigate(['/asesor/dashboard']);
-  }
-
-  reloadPlanes() {
-    this.loadPlanes();
-  }
-
-  irALogin() {
-    this.router.navigate(['/login']);
+  async doRefresh(event: any) {
+    await this.loadPlanes();
+    event.target.complete();
   }
 }

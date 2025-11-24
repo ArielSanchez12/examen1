@@ -19,7 +19,7 @@
       <ion-segment-button value="pendiente">
         <ion-label>Pendiente</ion-label>
       </ion-segment-button>
-      <ion-segment-button value="aprobada">
+      <ion-segment-button value="aceptado">
         <ion-label>Aprobada</ion-label>
       </ion-segment-button>
       <ion-segment-button value="rechazada">
@@ -45,9 +45,9 @@
       </div>
 
       <ion-card-header>
-        <ion-card-title class="plan-nombre">{{ contratacion.plan?.nombre }}</ion-card-title>
+        <ion-card-title class="plan-nombre">{{ contratacion.planes_moviles?.nombre }}</ion-card-title>
         <p class="fecha-contratacion">
-          Contratado el {{ contratacion.fecha_contratacion | date: 'short' }}
+          Contratado el {{ contratacion.fecha | date: 'short' }}
         </p>
       </ion-card-header>
 
@@ -56,15 +56,15 @@
         <div class="plan-info">
           <div class="info-item">
             <strong>Precio:</strong>
-            <span>${{ contratacion.plan?.precio }}/mes</span>
+            <span>${{ contratacion.planes_moviles?.precio }}/mes</span>
           </div>
           <div class="info-item">
             <strong>Datos:</strong>
-            <span>{{ contratacion.plan?.datos }}</span>
+            <span>{{ contratacion.planes_moviles?.datos }}</span>
           </div>
           <div class="info-item">
             <strong>Minutos:</strong>
-            <span>{{ contratacion.plan?.minutos }}</span>
+            <span>{{ contratacion.planes_moviles?.minutos }}</span>
           </div>
         </div>
 
@@ -79,7 +79,7 @@
             <ion-icon slot="start" name="information-circle-outline"></ion-icon>
             Ver Plan
           </ion-button>
-          <ion-button color="primary" size="small" (click)="irAlChat(contratacion.id!)">
+          <ion-button color="primary" size="small" (click)="irAlChat(contratacion.id)">
             <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
             Chat
           </ion-button>
@@ -92,7 +92,7 @@
   <div *ngIf="!loading && getContratacionesFiltradas().length === 0" class="sin-contrataciones">
     <ion-icon name="clipboard-outline"></ion-icon>
     <p>No tienes contrataciones</p>
-    <ion-button routerLink="/catalogo" color="primary">
+    <ion-button [routerLink]="['/pages/catalogo']" color="primary">
       Ver Planes
     </ion-button>
   </div>

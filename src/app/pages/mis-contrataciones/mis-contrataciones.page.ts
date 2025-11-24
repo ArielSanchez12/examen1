@@ -4,7 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ContratacionesService } from '../../services/contrataciones';
-import { Contratacion } from '../../models/contratacion.model';
+import { Contratacion } from '../../models/models';
 
 @Component({
   selector: 'app-mis-contrataciones',
@@ -30,7 +30,7 @@ export class MisContratacionesPage implements OnInit {
   private async loadContrataciones() {
     this.loading = true;
     try {
-      this.contrataciones = await this.contratacionesService.getContratacionesUsuario();
+      this.contrataciones = await this.contratacionesService.getMisContrataciones();
     } catch (error) {
       console.error('Error al cargar contrataciones:', error);
     } finally {
@@ -47,12 +47,14 @@ export class MisContratacionesPage implements OnInit {
 
   getEstadoColor(estado: string) {
     switch (estado) {
-      case 'aprobada':
+      case 'aceptado': // FIX: antes 'aprobada'
         return 'success';
-      case 'rechazada':
+      case 'rechazado':
         return 'danger';
       case 'pendiente':
         return 'warning';
+      case 'cancelado':
+        return 'medium';
       default:
         return 'medium';
     }
@@ -60,23 +62,25 @@ export class MisContratacionesPage implements OnInit {
 
   getEstadoTexto(estado: string) {
     switch (estado) {
-      case 'aprobada':
-        return 'Aprobada';
-      case 'rechazada':
-        return 'Rechazada';
+      case 'aceptado':
+        return 'Aceptado';
+      case 'rechazado':
+        return 'Rechazado';
       case 'pendiente':
         return 'Pendiente';
+      case 'cancelado':
+        return 'Cancelado';
       default:
         return estado;
     }
   }
 
-  irAlChat(contratacionId: string) {
-    this.router.navigate(['/chat', contratacionId]);
+  irAlChat(contratacionId: number) { // FIX tipo number y ruta
+    this.router.navigate(['/pages/chat', contratacionId]);
   }
 
-  irAlDetallePlan(planId: string) {
-    this.router.navigate(['/detalle-plan', planId]);
+  irAlDetallePlan(planId: number) { // FIX tipo number y ruta
+    this.router.navigate(['/pages/detalle-plan', planId]);
   }
 
   reloadContrataciones() {

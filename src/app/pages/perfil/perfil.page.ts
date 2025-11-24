@@ -1,62 +1,131 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
-import { RouterModule, Router } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { IonButtons, IonBackButton, IonBadge, IonContent, IonHeader, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonItem, IonLabel, IonInput, IonIcon, IonChip, IonSpinner, LoadingController, ToastController, AlertController } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { personCircleOutline, mailOutline, callOutline, logOutOutline, saveOutline, personOutline, shieldCheckmarkOutline } from 'ionicons/icons';
 import { AuthService } from '../../services/auth';
-import { SupabaseService } from '../../services/supabase';
+import { Perfil } from '../../models/models';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-perfil',
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule]
+  imports: [IonButtons, IonBackButton, IonBadge, RouterModule, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonItem, IonLabel, IonInput, IonIcon, IonChip, IonSpinner]
 })
 export class PerfilPage implements OnInit {
-  nombre = '';
-  email = '';
-  rol = '';
-  isLoading = false;
+  perfilForm: FormGroup;
+  perfil?: Perfil;
+  loading = true;
+  editMode = false;
 
   constructor(
+    private fb: FormBuilder,
     private authService: AuthService,
-    private supabaseService: SupabaseService,
-    private alertController: AlertController,
-    private router: Router
-  ) { }
+    private router: Router,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController
+  ) {
+    addIcons({ personCircleOutline, mailOutline, callOutline, logOutOutline, saveOutline, personOutline, shieldCheckmarkOutline });
+    
+    this.perfilForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(3)]],
+      telefono: ['', [Validators.pattern(/^[0-9]{10}$/)]]
+    });
+  }
 
-  ngOnInit() {
-    // FIX: Usar el getter en lugar del método
-    const profile = this.authService.currentProfile;
-    if (profile) {
-      this.nombre = profile.nombre || '';
-      this.email = profile.email || '';
-      this.rol = profile.rol || '';
+  async ngOnInit() {
+    const currentProfile = this.authService.getCurrentProfile();
+    this.perfil = currentProfile || undefined;
+    if (this.perfil) {
+      this.perfilForm.patchValue({
+        nombre: this.perfil.nombre,
+        telefono: this.perfil.telefono || ''
+      });
+    }
+    this.loading = false;
+    this.perfilForm.disable();
+  }
+
+  toggleEditMode() {
+    this.editMode = !this.editMode;
+    if (this.editMode) {
+      this.perfilForm.enable();
+    } else {
+      this.perfilForm.disable();
+      if (this.perfil) {
+        this.perfilForm.patchValue({
+          nombre: this.perfil.nombre,
+          telefono: this.perfil.telefono || ''
+        });
+      }
     }
   }
 
-  async cerrarSesion() {
-    const alert = await this.alertController.create({
+  async guardarCambios() {
+    if (!this.perfilForm.valid) {
+      const toast = await this.toastCtrl.create({
+        message: 'Por favor completa los campos correctamente',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
+
+    const loading = await this.loadingCtrl.create({
+      message: 'Guardando cambios...'
+    });
+    await loading.present();
+
+    const updates = {
+      nombre: this.perfilForm.value.nombre,
+      telefono: this.perfilForm.value.telefono || null
+    };
+
+    const result = await this.authService.updateProfile(updates);
+    await loading.dismiss();
+
+    if (result.success) {
+      const currentProfile = this.authService.getCurrentProfile();
+      this.perfil = currentProfile || undefined;
+      this.editMode = false;
+      this.perfilForm.disable();
+      
+      const toast = await this.toastCtrl.create({
+        message: 'Perfil actualizado correctamente',
+        duration: 2000,
+        color: 'success'
+      });
+      await toast.present();
+    } else {
+      const toast = await this.toastCtrl.create({
+        message: result.error || 'Error al actualizar el perfil',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
+    }
+  }
+
+  async confirmarCerrarSesion() {
+    const alert = await this.alertCtrl.create({
       header: 'Cerrar Sesión',
       message: '¿Estás seguro de que deseas cerrar sesión?',
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
         {
           text: 'Cerrar Sesión',
-          handler: async () => {
-            this.isLoading = true;
-            const result = await this.authService.signOut();
-            if (result.success) {
-              this.router.navigate(['/catalogo']);
-            } else {
-              const errAlert = await this.alertController.create({
-                header: 'Error',
-                message: result.error || 'No se pudo cerrar sesión',
-                buttons: ['Aceptar']
-              });
-              await errAlert.present();
-            }
-            this.isLoading = false;
+          role: 'destructive',
+          handler: () => {
+            this.cerrarSesion();
           }
         }
       ]
@@ -64,18 +133,42 @@ export class PerfilPage implements OnInit {
     await alert.present();
   }
 
-  irAlCatalogo() {
-    this.router.navigate(['/catalogo']);
+  async cerrarSesion() {
+    await this.authService.logout();
   }
 
-  getRolTexto() {
-    if (this.rol === 'asesor_comercial') {
-      return 'Asesor Comercial';
+  getRolLabel(rol: string): string {
+    switch (rol) {
+      case 'usuario_registrado':
+        return 'Usuario Registrado';
+      case 'asesor_comercial':
+        return 'Asesor Comercial';
+      case 'invitado':
+        return 'Invitado';
+      default:
+        return rol;
     }
-    return 'Usuario Registrado';
   }
 
-  getRolColor() {
-    return this.rol === 'asesor_comercial' ? 'success' : 'primary';
+  getRolColor(rol: string): string {
+    switch (rol) {
+      case 'asesor_comercial':
+        return 'primary';
+      case 'usuario_registrado':
+        return 'success';
+      default:
+        return 'medium';
+    }
+  }
+
+  getRolIcon(rol: string): string {
+    switch (rol) {
+      case 'asesor_comercial':
+        return 'shield-checkmark-outline';
+      case 'usuario_registrado':
+        return 'person-outline';
+      default:
+        return 'person-outline';
+    }
   }
 }

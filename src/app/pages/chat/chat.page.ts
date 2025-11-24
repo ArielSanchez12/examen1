@@ -1,31 +1,34 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonButton, IonButtons, IonBackButton, IonIcon, IonSpinner, IonItem, IonTextarea, IonLabel, IonChip } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { sendOutline, personCircleOutline } from 'ionicons/icons';
 import { ChatService } from '../../services/chat';
 import { ContratacionesService } from '../../services/contrataciones';
 import { AuthService } from '../../services/auth';
-import { Mensaje } from '../../models/mensaje.model';
-import { Contratacion } from '../../models/contratacion.model';
+import { MensajeChat, Contratacion } from '../../models/models';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.page.html',
   styleUrls: ['./chat.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, IonFooter, IonButton, IonButtons, IonBackButton, IonIcon, IonSpinner, IonItem, IonTextarea, IonLabel, IonChip]
 })
 export class ChatPage implements OnInit, OnDestroy {
-  @ViewChild('contentChat') contentChat: ElementRef | undefined;
-
-  contratacionId: string = '';
-  contratacion: Contratacion | null = null;
-  mensajes: Mensaje[] = [];
+  @ViewChild(IonContent) content?: IonContent;
+  
+  mensajes: MensajeChat[] = [];
   nuevoMensaje = '';
-  loading = false;
-  enviando = false;
-  usuarioActualId = '';
+  loading = true;
+  sending = false;
+  contratacionId?: number;
+  contratacion?: Contratacion;
+  currentUserId?: string;
+  private mensajesSubscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -33,82 +36,75 @@ export class ChatPage implements OnInit, OnDestroy {
     private chatService: ChatService,
     private contratacionesService: ContratacionesService,
     private authService: AuthService
-  ) { }
+  ) {
+    addIcons({ sendOutline, personCircleOutline });
+  }
 
-  ngOnInit() {
-    this.usuarioActualId = this.authService.currentUser?.id || '';
-    this.route.params.subscribe(async params => {
-      this.contratacionId = params['id'];
-      await this.loadContratacion();
-      await this.loadMensajes();
-      this.suscribirseAMensajes();
-    });
+  async ngOnInit() {
+    this.currentUserId = this.authService.getCurrentProfile()?.user_id;
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.contratacionId = parseInt(idParam, 10);
+      await this.loadContratacion(this.contratacionId);
+      this.chatService.subscribeToChat(this.contratacionId);
+      this.subscribeToChatMessages();
+      await this.chatService.markAsRead(this.contratacionId);
+    }
+    
+    this.loading = false;
   }
 
   ngOnDestroy() {
-    this.chatService.unsubscribeFromMessages();
-  }
-
-  private async loadContratacion() {
-    try {
-      this.contratacion = await this.contratacionesService.getContratacionById(this.contratacionId);
-    } catch (error) {
-      console.error('Error al cargar contratación:', error);
+    if (this.mensajesSubscription) {
+      this.mensajesSubscription.unsubscribe();
     }
+    this.chatService.unsubscribe();
   }
 
-  private async loadMensajes() {
-    try {
-      this.mensajes = await this.chatService.getMensajes(this.contratacionId);
-      this.scrollAlFinal();
-    } catch (error) {
-      console.error('Error al cargar mensajes:', error);
-    }
+  async loadContratacion(id: number) {
+    const result = await this.contratacionesService.getContratacionById(id);
+    this.contratacion = result || undefined;
   }
 
-  private suscribirseAMensajes() {
-    this.chatService.subscribeToMessages(this.contratacionId);
-    this.chatService.mensajes$.subscribe((mensajes: Mensaje[]) => { // ← AGREGAR tipo
+  subscribeToChatMessages() {
+    this.mensajesSubscription = this.chatService.mensajes$.subscribe(mensajes => {
       this.mensajes = mensajes;
-      this.scrollAlFinal();
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 100);
+      
+      if (this.contratacionId) {
+        this.chatService.markAsRead(this.contratacionId);
+      }
     });
   }
 
   async enviarMensaje() {
-    if (!this.nuevoMensaje.trim()) return;
+    if (!this.nuevoMensaje.trim() || !this.contratacionId) return;
 
-    this.enviando = true;
-    const mensaje = this.nuevoMensaje;
+    this.sending = true;
+    const mensaje = this.nuevoMensaje.trim();
     this.nuevoMensaje = '';
 
-    try {
-      await this.chatService.enviarMensaje(this.contratacionId, mensaje);
-      this.scrollAlFinal();
-    } catch (error) {
-      console.error('Error al enviar mensaje:', error);
-      this.nuevoMensaje = mensaje;
-    } finally {
-      this.enviando = false;
+    const result = await this.chatService.sendMensaje(this.contratacionId, mensaje);
+    this.sending = false;
+
+    if (!result.success) {
+      this.nuevoMensaje = mensaje; // Restaurar mensaje si falló
     }
   }
 
-  private scrollAlFinal() {
-    setTimeout(() => {
-      if (this.contentChat) {
-        this.contentChat.nativeElement.scrollToBottom(300);
-      }
-    }, 100);
+  isMine(mensaje: MensajeChat): boolean {
+    return mensaje.emisor === this.currentUserId;
   }
 
-  esDelUsuario(remitenteId: string) {
-    return remitenteId === this.usuarioActualId;
+  scrollToBottom() {
+    if (this.content) {
+      this.content.scrollToBottom(300);
+    }
   }
 
-  goBack() {
-    this.router.navigate(['/mis-contrataciones']);
-  }
-
-  handleKeyPress(event: KeyboardEvent) {
+  onKeyPress(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.enviarMensaje();

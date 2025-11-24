@@ -1,72 +1,90 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem, IonLabel, IonText, IonSpinner, IonCard, IonCardContent, IonIcon, LoadingController, ToastController } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { addIcons } from 'ionicons';
+import { phonePortraitOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, eyeOutline, alertCircleOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonButton, IonInput, IonItem, IonLabel, IonText, IonSpinner, IonCard, IonCardContent, IonIcon]
 })
-export class LoginPage {
-  form: FormGroup;
-  mostrandoPass = false;
-  cargando = false;
-  returnUrl = '/catalogo';
+export class LoginPage implements OnInit {
+  loginForm: FormGroup;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
-    private auth: AuthService,
+    private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute,
-    private alertCtrl: AlertController
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController
   ) {
-    this.form = this.fb.group({
+    addIcons({ phonePortraitOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, eyeOutline, alertCircleOutline });
+    this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
-
-    const ret = this.route.snapshot.queryParamMap.get('returnUrl');
-    if (ret) this.returnUrl = ret;
   }
 
-  togglePass() {
-    this.mostrandoPass = !this.mostrandoPass;
-  }
-
-  async login() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+  ngOnInit() {
+    // Verificar si ya está autenticado
+    if (this.authService.isAuthenticated()) {
+      this.redirectByRole();
     }
-    this.cargando = true;
-    const { email, password } = this.form.value;
-    const res = await this.auth.signIn(email, password);
-    this.cargando = false;
+  }
 
-    if (!res.success) {
-      const a = await this.alertCtrl.create({
-        header: 'Error',
-        message: res.error || 'No se pudo iniciar sesión',
-        buttons: ['Aceptar'],
+  async onLogin() {
+    if (this.loginForm.valid) {
+      const loading = await this.loadingCtrl.create({
+        message: 'Iniciando sesión...'
       });
-      await a.present();
-      return;
+      await loading.present();
+
+      const { email, password } = this.loginForm.value;
+      const result = await this.authService.login(email, password);
+
+      await loading.dismiss();
+
+      if (result.success) {
+        const toast = await this.toastCtrl.create({
+          message: '¡Bienvenido!',
+          duration: 2000,
+          color: 'success'
+        });
+        await toast.present();
+
+        this.redirectByRole();
+      } else {
+        const toast = await this.toastCtrl.create({
+          message: result.error || 'Error al iniciar sesión',
+          duration: 3000,
+          color: 'danger'
+        });
+        await toast.present();
+      }
     }
-
-    // Si no se redirigió por rol en AuthService, vuelve al returnUrl
-    this.router.navigateByUrl(this.returnUrl, { replaceUrl: true });
   }
 
-  irRegistro() {
-    this.router.navigate(['/registro']);
+  private redirectByRole() {
+    const role = this.authService.getCurrentRole();
+    if (role === 'asesor_comercial') {
+      this.router.navigate(['/pages/asesor/dashboard']);
+    } else {
+      this.router.navigate(['/tabs']);
+    }
   }
 
-  irCatalogo() {
-    this.router.navigate(['/catalogo']);
+  goToRegister() {
+    this.router.navigate(['/pages/registro']);
+  }
+
+  goToCatalogo() {
+    this.router.navigate(['/pages/catalogo']);
   }
 }

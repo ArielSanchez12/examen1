@@ -1,78 +1,86 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem, IonLabel, IonText, IonSpinner, IonBackButton, IonButtons, IonIcon, LoadingController, ToastController } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { addIcons } from 'ionicons';
+import { personAddOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-registro',
   templateUrl: './registro.page.html',
   styleUrls: ['./registro.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonButton, IonInput, IonItem, IonLabel, IonText, IonSpinner, IonBackButton, IonButtons, IonIcon]
 })
-export class RegistroPage {
-  form: FormGroup;
-  cargando = false;
-  mostrandoPass = false;
-  mostrandoPass2 = false;
+export class RegistroPage implements OnInit {
+  registroForm: FormGroup;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
-    private auth: AuthService,
+    private authService: AuthService,
     private router: Router,
-    private alertCtrl: AlertController
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController
   ) {
-    this.form = this.fb.group({
+    addIcons({ personAddOutline });
+    this.registroForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
+      telefono: ['', [Validators.pattern(/^[0-9]{10}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirm: ['', [Validators.required]],
-      terminos: [false, [Validators.requiredTrue]],
-    }, { validators: this.passwordsIguales });
+      confirmPassword: ['', [Validators.required]]
+    }, { validators: this.passwordMatchValidator });
   }
 
-  passwordsIguales(group: FormGroup) {
-    const p = group.get('password')?.value;
-    const c = group.get('confirm')?.value;
-    return p === c ? null : { mismatch: true };
-  }
+  ngOnInit() {}
 
-  togglePass(which: 1 | 2) {
-    if (which === 1) this.mostrandoPass = !this.mostrandoPass;
-    else this.mostrandoPass2 = !this.mostrandoPass2;
-  }
-
-  async registro() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password');
+    const confirmPassword = form.get('confirmPassword');
+    
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
     }
-    this.cargando = true;
-    const { nombre, email, password } = this.form.value;
-    const res = await this.auth.signUp(email, password, nombre);
-    this.cargando = false;
+    return null;
+  }
 
-    if (!res.success) {
-      const a = await this.alertCtrl.create({
-        header: 'Error',
-        message: res.error || 'No se pudo crear la cuenta',
-        buttons: ['Aceptar'],
+  async onRegister() {
+    if (this.registroForm.valid) {
+      const loading = await this.loadingCtrl.create({
+        message: 'Creando cuenta...'
       });
-      await a.present();
-      return;
-    }
+      await loading.present();
 
-    const ok = await this.alertCtrl.create({
-      header: 'Cuenta creada',
-      message: 'Te registraste como usuario. Inicia sesión para continuar.',
-      buttons: [{ text: 'Ir a Iniciar Sesión', handler: () => this.router.navigate(['/login']) }],
-    });
-    await ok.present();
+      const { nombre, email, telefono, password } = this.registroForm.value;
+      const result = await this.authService.register(email, password, nombre, telefono);
+
+      await loading.dismiss();
+
+      if (result.success) {
+        const toast = await this.toastCtrl.create({
+          message: '¡Cuenta creada exitosamente! Por favor inicia sesión.',
+          duration: 3000,
+          color: 'success'
+        });
+        await toast.present();
+
+        this.router.navigate(['/pages/login']);
+      } else {
+        const toast = await this.toastCtrl.create({
+          message: result.error || 'Error al crear la cuenta',
+          duration: 3000,
+          color: 'danger'
+        });
+        await toast.present();
+      }
+    }
   }
 
-  irLogin() {
-    this.router.navigate(['/login']);
+  goToLogin() {
+    this.router.navigate(['/pages/login']);
   }
 }
